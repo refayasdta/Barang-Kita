@@ -20,7 +20,6 @@ public class User extends Akun {
         System.out.println("Profile updated.");
     }
 
-    // Note: You will need 'Item' and 'Order' classes created for these to work
     public List<String> searchItem(String keyword) {
         System.out.println("Searching for: " + keyword);
         return null; 
