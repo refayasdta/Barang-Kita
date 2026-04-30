@@ -1,5 +1,7 @@
 package com.barangkita.barang_kita.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +16,15 @@ public class Item {
     private double harga;
     private String deskripsi;
     private String gambar_item;
+
+    public Item() {}
+
+    public Item(String nama_item, double harga, String deskripsi, String gambar_item) {
+        this.nama_item = nama_item;
+        this.harga = harga;
+        this.deskripsi = deskripsi;
+        this.gambar_item = gambar_item;
+    }
 
     public int getId_item() { return id_item; }
     public void setId_item(int id_item) { this.id_item = id_item; }
@@ -30,6 +41,7 @@ public class Item {
     public String getGambar_item() { return gambar_item; }
     public void setGambar_item(String gambar_item) { this.gambar_item = gambar_item; }
 
+    @JsonIgnore
     public Item getItemDetails() {
         System.out.println("ID: " + id_item);
         System.out.println("Name: " + nama_item);
