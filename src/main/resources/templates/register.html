@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | BarangKita</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #666; }
+        input[type="email"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        p { text-align: center; margin-top: 15px; font-size: 14px; }
+        .error { color: red; text-align: center; display: none; }
+        .success { color: green; text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Create an Account</h2>
+    <p id="errorMsg" class="error"></p>
+    <p id="successMsg" class="success"></p>
+    
+    <form id="registerForm">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login here</a></p>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Stop page from refreshing
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Call your backend API
+        fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        })
+        .then(async response => {
+            const msg = await response.text();
+            if (response.ok) {
+                document.getElementById('errorMsg').style.display = 'none';
+                document.getElementById('successMsg').innerText = msg + " Redirecting to login...";
+                document.getElementById('successMsg').style.display = 'block';
+                setTimeout(() => window.location.href = '/login', 2000); // Send to login page after 2 seconds
+            } else {
+                document.getElementById('successMsg').style.display = 'none';
+                document.getElementById('errorMsg').innerText = msg;
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        });
+    });
+</script>
+</body>
+</html>

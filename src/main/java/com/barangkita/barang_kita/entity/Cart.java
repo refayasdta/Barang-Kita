@@ -1,5 +1,7 @@
 package com.barangkita.barang_kita.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -34,5 +36,17 @@ public class Cart {
         Order order = new Order();
         order.createOrder();
         return order;
+    }
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> cartItems = new ArrayList<>();
+
+    // Add these Getters and Setters to the bottom of the file
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
     }
 }

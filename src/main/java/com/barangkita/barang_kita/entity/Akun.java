@@ -13,6 +13,8 @@ public abstract class Akun {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id_akun;
 
+
+    private String role;
     private String email;
     private String password;
 
@@ -24,5 +26,11 @@ public abstract class Akun {
         System.out.println("Logged out.");
     }
 
-    public abstract String getRole();
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }   
 }
