@@ -22,6 +22,8 @@ public class Order {
 
     private double total_pembayaran;
 
+    private String status = "PENDING";
+
     public void createOrder() {
         this.tanggal_order = new Date();
         System.out.println("Order #" + id_order + " created on " + tanggal_order);

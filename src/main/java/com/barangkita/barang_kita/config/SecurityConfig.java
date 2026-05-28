@@ -27,6 +27,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 
+                .requestMatchers("/assets/**").permitAll()
+
                 .requestMatchers("/login", "/register").permitAll()
                 
                 .requestMatchers("/api/auth/**").permitAll()
@@ -38,7 +40,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/items/**").hasAuthority("Admin")
 
                 .requestMatchers("/api/carts/**").hasAuthority("User")
-                .requestMatchers("/api/orders/**").hasAuthority("User")
+
+                .requestMatchers(HttpMethod.GET, "/api/orders/user/**").hasAuthority("User")
+                .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAuthority("User")
+
+                .requestMatchers(HttpMethod.GET, "/api/orders/all").hasAuthority("Admin")
+                .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasAuthority("Admin")
+                .requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyAuthority("Admin", "User")
 
                 .anyRequest().authenticated()
             )

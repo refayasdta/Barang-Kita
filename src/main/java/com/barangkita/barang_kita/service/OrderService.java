@@ -13,7 +13,7 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     public List<Order> getOrderByUser(int id_user) {
-    return orderRepository.findByUserId(id_user);
+        return orderRepository.findByUserId(id_user);
     }
 
     public Order saveOrder(Order order) {
@@ -21,7 +21,15 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    public Order updateOrder(Order order) {
+        return orderRepository.save(order);
+    }
+
     public Order getOrderById(int id) {
         return orderRepository.findById(id).orElse(null);
+    }
+
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
     }
 }

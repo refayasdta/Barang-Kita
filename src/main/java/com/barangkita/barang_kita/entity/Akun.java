@@ -25,12 +25,4 @@ public abstract class Akun {
     public void logout() {
         System.out.println("Logged out.");
     }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }   
 }

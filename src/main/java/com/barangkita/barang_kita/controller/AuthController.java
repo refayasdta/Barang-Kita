@@ -3,6 +3,7 @@ package com.barangkita.barang_kita.controller;
 import com.barangkita.barang_kita.dto.AuthRequest;
 import com.barangkita.barang_kita.dto.AuthResponse;
 import com.barangkita.barang_kita.entity.Akun;
+import com.barangkita.barang_kita.entity.Admin;
 import com.barangkita.barang_kita.entity.User;
 import com.barangkita.barang_kita.repository.AkunRepository;
 import com.barangkita.barang_kita.security.JwtUtil;
@@ -25,41 +26,40 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // 1. REGISTRATION ENDPOINT
+    // 1. REGISTER USER
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User newUser) {
-        // Check if email already exists
         if (akunRepository.findByEmail(newUser.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email is already taken!");
         }
-
-        // Hash the password before saving to the database
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        
-        // Ensure role is set (assuming you have a setRole or default role logic)
-        newUser.setRole("USER"); 
-
+        newUser.setRole("User");
         akunRepository.save(newUser);
         return ResponseEntity.ok("User registered successfully!");
     }
 
-    // 2. LOGIN ENDPOINT
+    // 2. REGISTER ADMIN
+    @PostMapping("/register-admin")
+    public ResponseEntity<?> registerAdmin(@RequestBody Admin newAdmin) {
+        if (akunRepository.findByEmail(newAdmin.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email is already taken!");
+        }
+        newAdmin.setPassword(passwordEncoder.encode(newAdmin.getPassword()));
+        newAdmin.setRole("Admin");
+        akunRepository.save(newAdmin);
+        return ResponseEntity.ok("Admin registered successfully!");
+    }
+
+    // 3. LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        // Find the user by email
         Akun akun = akunRepository.findByEmail(request.getEmail()).orElse(null);
 
-        // Check if user exists AND if the passwords match
         if (akun != null && passwordEncoder.matches(request.getPassword(), akun.getPassword())) {
-            
-            // Passwords match! Generate the token.
             String token = jwtUtil.generateToken(akun.getEmail(), akun.getRole());
-            
-            // Return the token and the role to the frontend/Postman
             return ResponseEntity.ok(new AuthResponse(token, akun.getRole()));
         }
 
-        // If email not found or password incorrect
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
     }
 }

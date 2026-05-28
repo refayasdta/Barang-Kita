@@ -3,69 +3,503 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | BarangKita</title>
+    <title>BarangKita</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #666; }
-        input[type="email"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-        p { text-align: center; margin-top: 15px; font-size: 14px; }
-        .error { color: red; text-align: center; display: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Poppins', sans-serif;
+        /* We remove the background from the body itself and put it on the layers below */
+    }
+
+    /* ── BACKGROUND LAYERS FOR SMOOTH FADE ── */
+    body::before,
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1; /* Keeps them strictly in the background */
+        /* 0.6s matches the exact speed of your blue sliding overlay! */
+        transition: opacity 0.6s cubic-bezier(0.77, 0, 0.175, 1); 
+    }
+
+    /* LAYER 1: LOGIN BACKGROUND (Warm Mesh) */
+    body::before {
+        background-color: #F5EDD3;
+        background-image: 
+            radial-gradient(circle at 15% 20%, #FFFDF7 0%, transparent 45%),
+            radial-gradient(circle at 85% 85%, #E3D6A5 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, #EAE0B8 0%, transparent 40%),
+            radial-gradient(circle at 30% 80%, #FCF9E8 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, #F5EDD3 0%, transparent 60%);
+        opacity: 1; /* Visible by default */
+    }
+
+    /* LAYER 2: REGISTER BACKGROUND (Cool Mesh) */
+    body::after {
+        background-color: #E6F0FA; 
+        background-image: 
+            radial-gradient(circle at 20% 80%, #F5EDD3 0%, transparent 45%),
+            radial-gradient(circle at 80% 20%, #FCF9E8 0%, transparent 50%),
+            radial-gradient(circle at 15% 15%, #EAE0B8 0%, transparent 40%),
+            radial-gradient(circle at 85% 85%, #E3D6A5 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, #FFFDF7 0%, transparent 60%);
+        opacity: 0; /* Hidden by default */
+    }
+
+    /* TRIGGER CLASSES */
+    body.register-bg-active::before {
+        opacity: 0; /* Hide Login BG */
+    }
+
+    body.register-bg-active::after {
+        opacity: 1; /* Show Register BG */
+    }
+
+        /* ── CARD ── */
+        .card {
+            position: relative;
+            width: 860px;
+            height: 480px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* ── FORMS WRAPPER ── */
+        .forms-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
+        /* ── FORM PANELS ── */
+        .form-panel {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 45px;
+            transition: opacity 0.5s ease;
+        }
+
+        .form-panel h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0a0a1a;
+            margin-bottom: 30px;
+        }
+
+        /* ── INPUTS ── */
+        .input-group {
+            width: 100%;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 20px;
+            background: #F0E8D8;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            outline: none;
+            transition: background 0.2s;
+        }
+
+        .input-group input::placeholder {
+            color: #999;
+        }
+
+        .input-group input:focus {
+            background: #e8dece;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            font-size: 16px;
+            user-select: none;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #1A5FCC;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-primary:hover {
+            background: #154fa8;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            padding: 12px 40px;
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* ── ERROR MSG ── */
+        .error-msg {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 8px;
+            text-align: center;
+            min-height: 18px;
+        }
+
+        /* ── BLUE OVERLAY PANEL ── */
+        .overlay-panel {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        /* Your new custom gradient: Light Cyan to Deep Blue */
+        background: linear-gradient(to bottom, #5DD3E3 0%, #0066CC 100%);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 45px;
+        text-align: center;
+        transition: left 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+        z-index: 10;
+    }
+
+        /* Login mode: overlay on RIGHT */
+        .overlay-panel.login-mode {
+            left: 50%;
+            border-radius: 0 20px 20px 0;
+        }
+
+        /* Register mode: overlay on LEFT */
+        .overlay-panel.register-mode {
+            left: 0%;
+            border-radius: 20px 0 0 20px;
+        }
+
+        .overlay-panel h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .overlay-panel p {
+            color: rgba(255,255,255,0.75);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        /* ── LOGO ── */
+        .logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .logo img {
+            max-height: 50px; /* Adjust this value to resize your logo */
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0px 4px 2px rgba(0, 0, 0, 0.35));
+        }
+
+        /* ── HIDE/SHOW FORMS ── */
+        #login-form-panel {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50%;
+        }
+
+        #register-form-panel {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+        }
+
+        /* When in register mode, login form is hidden behind overlay */
+        .card.register-active #login-form-panel {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* When in login mode, register form is hidden behind overlay */
+        .card.login-active #register-form-panel {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .card.login-active #login-form-panel {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .card.register-active #register-form-panel {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Transition for form panels */
+        #login-form-panel,
+        #register-form-panel {
+            transition: opacity 0.3s ease 0.2s;
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Login to BarangKita</h2>
-    <p id="errorMsg" class="error"></p>
-    
-    <form id="loginForm">
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" required>
+<div class="card login-active" id="mainCard">
+
+    <div class="form-panel" id="login-form-panel">
+        <h2>Login</h2>
+
+        <div class="input-group">
+            <input type="email" id="login-email" placeholder="Email" />
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" required>
+
+        <div class="input-group">
+            <input type="password" id="login-password" placeholder="Password" />
+            <span class="eye-icon" onclick="togglePassword('login-password', this)">👁</span>
         </div>
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="/register">Register here</a></p>
+
+        <div class="error-msg" id="login-error"></div>
+
+        <button class="btn-primary" onclick="handleLogin()">LOGIN</button>
+    </div>
+
+    <div class="form-panel" id="register-form-panel">
+        <h2>Registration</h2>
+
+        <div class="input-group">
+            <input type="text" id="reg-nama" placeholder="Full Name" />
+        </div>
+
+        <div class="input-group">
+            <input type="email" id="reg-email" placeholder="Email" />
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="reg-password" placeholder="Password" />
+            <span class="eye-icon" onclick="togglePassword('reg-password', this)">👁</span>
+        </div>
+
+        <div class="error-msg" id="register-error"></div>
+
+        <button class="btn-primary" onclick="handleRegister()">REGISTER</button>
+    </div>
+
+    <div class="overlay-panel login-mode" id="overlayPanel">
+
+        <div id="overlay-login-content">
+            <h3>Welcome back to</h3>
+            <div class="logo">
+                <img src="/assets/logo-barangkita-final.png" alt="BarangKita Logo">
+            </div>
+            <p>Don't have an account?</p>
+            <button class="btn-outline" onclick="switchToRegister()">REGISTER</button>
+        </div>
+
+        <div id="overlay-register-content" style="display:none;">
+            <h3>Hi, Welcome to</h3>
+            <div class="logo">
+                <img src="assets/logo-barangkita-final.png" alt="BarangKita Logo">
+            </div>
+            <p>Already have an account?</p>
+            <button class="btn-outline" onclick="switchToLogin()">LOGIN</button>
+        </div>
+
+    </div>
+
 </div>
 
 <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    const card = document.getElementById('mainCard');
+    const overlay = document.getElementById('overlayPanel');
+    const overlayLoginContent = document.getElementById('overlay-login-content');
+    const overlayRegisterContent = document.getElementById('overlay-register-content');
 
-        fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, password: password })
-        })
-        .then(async response => {
+    function switchToRegister() {
+        // Fades the background to the Register Mesh
+        document.body.classList.add('register-bg-active');
+
+        // Slide overlay to left
+        overlay.classList.remove('login-mode');
+        overlay.classList.add('register-mode');
+
+        // Switch card state
+        card.classList.remove('login-active');
+        card.classList.add('register-active');
+
+        // Switch overlay content
+        overlayLoginContent.style.display = 'none';
+        overlayRegisterContent.style.display = 'flex';
+        overlayRegisterContent.style.flexDirection = 'column';
+        overlayRegisterContent.style.alignItems = 'center';
+    }
+
+    function switchToLogin() {
+        // Fades the background back to the Login Mesh
+        document.body.classList.remove('register-bg-active');
+
+        // Slide overlay to right
+        overlay.classList.remove('register-mode');
+        overlay.classList.add('login-mode');
+
+        // Switch card state
+        card.classList.remove('register-active');
+        card.classList.add('login-active');
+
+        // Switch overlay content
+        overlayRegisterContent.style.display = 'none';
+        overlayLoginContent.style.display = 'block';
+    }
+
+    function togglePassword(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            icon.textContent = '👁';
+        }
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const errorEl = document.getElementById('login-error');
+
+        if (!email || !password) {
+            errorEl.textContent = 'Please fill in all fields.';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
             if (response.ok) {
                 const data = await response.json();
-                
-                // WE GOT THE TOKEN! Save it to the browser's local storage
-                localStorage.setItem('jwtToken', data.token);
-                localStorage.setItem('userRole', data.role);
-                
-                // For now, just alert success. Next step will be redirecting to the storefront!
-                alert("Login Successful! Token saved. Role: " + data.role);
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+
+                // Redirect based on role
+                if (data.role === 'Admin') {
+                    window.location.href = '/admin-dashboard';
+                } else {
+                    window.location.href = '/home';
+                }
+            } else {
+                errorEl.textContent = 'Invalid email or password.';
+            }
+        } catch (err) {
+            errorEl.textContent = 'Connection error. Is the server running?';
+        }
+    }
+
+    async function handleRegister() {
+        const nama = document.getElementById('reg-nama').value;
+        const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const errorEl = document.getElementById('register-error');
+
+        if (!nama || !email || !password) {
+            errorEl.textContent = 'Please fill in all fields.';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nama, email, password })
+            });
+
+            if (response.ok) {
+                errorEl.style.color = '#27ae60';
+                errorEl.textContent = 'Registered! Please login.';
+                setTimeout(() => switchToLogin(), 1500);
             } else {
                 const msg = await response.text();
-                document.getElementById('errorMsg').innerText = msg;
-                document.getElementById('errorMsg').style.display = 'block';
+                errorEl.style.color = '#e74c3c';
+                errorEl.textContent = msg || 'Registration failed.';
             }
-        });
+        } catch (err) {
+            errorEl.textContent = 'Connection error. Is the server running?';
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (card.classList.contains('login-active')) {
+                handleLogin();
+            } else {
+                handleRegister();
+            }
+        }
     });
 </script>
+
 </body>
 </html>
