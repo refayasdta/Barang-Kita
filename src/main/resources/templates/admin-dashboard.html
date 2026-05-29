@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta name="view-transition" content="same-origin">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - BarangKita</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #EDE8D5;
+            color: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════
+           NAVBAR
+        ══════════════════════════════ */
+        .navbar {
+            background: #ffffff;
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover { color: #1A5FCC; }
+
+        .divider {
+            width: 1px;
+            height: 22px;
+            background: #ddd;
+        }
+
+        .nav-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1A5FCC;
+        }
+
+        .btn-lihat-pesanan {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            background: transparent;
+            color: #4DD9D5;
+            border: 2px solid #4DD9D5;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-lihat-pesanan:hover {
+            background: #4DD9D5;
+            color: white;
+        }
+
+        /* ══════════════════════════════
+           CONTENT
+        ══════════════════════════════ */
+        .content {
+            padding: 32px 40px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* ── Inventaris Header Card ── */
+        .header-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .header-card-left h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .header-card-left p {
+            font-size: 13px;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .btn-tambah {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #4DD9D5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        .btn-tambah:hover { background: #38c5c1; }
+        .btn-tambah:active { transform: scale(0.97); }
+
+        /* ── Item List ── */
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ── Item Row Card ── */
+        .item-row {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s;
+        }
+
+        .item-row:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Thumbnail */
+        .item-thumb {
+            width: 80px;
+            height: 80px;
+            background: #EDEAEA;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .item-thumb img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
+        }
+
+        .item-thumb .thumb-placeholder {
+            font-size: 32px;
+            opacity: 0.4;
+        }
+
+        /* Item Info */
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-info-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 3px;
+        }
+
+        .item-info-meta {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .item-info-desc {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Price + Actions */
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .item-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1A5FCC;
+            white-space: nowrap;
+            min-width: 140px;
+            text-align: right;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit, .btn-delete {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn-edit {
+            border-color: #4DD9D5;
+            color: #4DD9D5;
+        }
+
+        .btn-edit:hover {
+            background: #4DD9D5;
+            color: white;
+        }
+
+        .btn-delete {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .btn-delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* ── Empty / Loading ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #aaa;
+            font-size: 16px;
+            font-weight: 600;
+            background: white;
+            border-radius: 16px;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e0dbd0;
+            border-top-color: #1A5FCC;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ══════════════════════════════
+           MODAL - Add/Edit Item
+        ══════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.25s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+        }
+
+        .modal-field {
+            margin-bottom: 16px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 6px;
+        }
+
+        .modal-field input,
+        .modal-field textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #F0E8D8;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Nunito', sans-serif;
+            color: #333;
+            outline: none;
+            transition: background 0.2s;
+            resize: none;
+        }
+
+        .modal-field input:focus,
+        .modal-field textarea:focus { background: #e8dece; }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-modal-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-modal-cancel:hover { background: #e0e0e0; }
+
+        .btn-modal-save {
+            flex: 1;
+            padding: 12px;
+            background: #4DD9D5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-modal-save:hover { background: #38c5c1; }
+
+        .modal-error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ══════════════════════════════
+           CONFIRM DELETE MODAL
+        ══════════════════════════════ */
+        .confirm-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.25s ease;
+        }
+
+        .confirm-modal .icon { font-size: 48px; margin-bottom: 16px; }
+        .confirm-modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+        .confirm-modal p { font-size: 14px; color: #666; margin-bottom: 24px; }
+
+        .btn-confirm-delete {
+            padding: 12px 32px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-confirm-delete:hover { background: #c0392b; }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 999;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+    <div class="nav-left">
+        <button class="back-btn" onclick="window.location.href='/home'">
+            ← Kembali ke Toko
+        </button>
+        <div class="divider"></div>
+        <span class="nav-title">Admin Dashboard</span>
+    </div>
+    <button class="btn-lihat-pesanan" onclick="window.location.href='/admin-orders'">
+        📋 Lihat Pesanan
+    </button>
+</nav>
+
+<!-- ══ CONTENT ══ -->
+<div class="content">
+
+    <!-- Header Card -->
+    <div class="header-card">
+        <div class="header-card-left">
+            <h2>Inventaris Produk</h2>
+            <p id="itemCount">Memuat data...</p>
+        </div>
+        <button class="btn-tambah" onclick="openAddModal()">
+            + Tambah Produk Baru
+        </button>
+    </div>
+
+    <!-- Items List -->
+    <div class="items-list" id="itemsList">
+        <div class="empty-state">
+            <div class="spinner"></div>
+            <div style="margin-top:12px; color:#aaa;">Memuat produk...</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ══ ADD/EDIT MODAL ══ -->
+<div class="modal-overlay" id="itemModal">
+    <div class="modal">
+        <h3 id="modalTitle">Tambah Produk Baru</h3>
+
+        <div class="modal-field">
+            <label>Nama Produk</label>
+            <input type="text" id="field-nama" placeholder="Masukkan nama produk" />
+        </div>
+        <div class="modal-field">
+            <label>Harga (Rp)</label>
+            <input type="number" id="field-harga" placeholder="Contoh: 150000" />
+        </div>
+        <div class="modal-field">
+            <label>Deskripsi</label>
+            <textarea id="field-deskripsi" rows="3" placeholder="Deskripsi produk..."></textarea>
+        </div>
+        <div class="modal-field">
+            <label>Nama File Gambar</label>
+            <input type="text" id="field-gambar" placeholder="Contoh: produk.jpg" />
+        </div>
+
+        <div class="modal-error" id="modalError"></div>
+
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal()">Batal</button>
+            <button class="btn-modal-save" onclick="saveItem()">Simpan</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ DELETE CONFIRM MODAL ══ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="confirm-modal">
+        <div class="icon">🗑️</div>
+        <h3>Hapus Produk?</h3>
+        <p id="deleteItemName">Apakah kamu yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.</p>
+        <button class="btn-confirm-delete" onclick="confirmDelete()">Ya, Hapus</button>
+        <button class="btn-modal-cancel" style="padding:12px 32px; border-radius:50px;" onclick="closeDeleteModal()">Batal</button>
+    </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<script>
+    let allItems = [];
+    let editingItemId = null;
+    let deletingItemId = null;
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    // ── Auth guard ──
+    if (!token || role !== 'Admin') {
+        window.location.href = '/login';
+    }
+
+    // ── Helpers ──
+    function formatRupiah(amount) {
+        return 'Rp ' + Number(amount).toLocaleString('id-ID');
+    }
+
+    function showToast(msg, duration = 2500) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function authHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        };
+    }
+
+    // ── Load Items ──
+    async function loadItems() {
+        try {
+            const res = await fetch('/api/items');
+            allItems = await res.json();
+
+            const countEl = document.getElementById('itemCount');
+            countEl.textContent = `${allItems.length} total produk dalam database`;
+
+            const list = document.getElementById('itemsList');
+
+            if (allItems.length === 0) {
+                list.innerHTML = `<div class="empty-state">Belum ada produk. Tambahkan produk pertama!</div>`;
+                return;
+            }
+
+            list.innerHTML = allItems.map(item => `
+                <div class="item-row" id="item-row-${item.id_item}">
+                    <!-- Thumbnail -->
+                    <div class="item-thumb">
+                        ${item.gambar_item
+                            ? `<img src="/images/${item.gambar_item}" alt="${item.nama_item}"
+                                    onerror="this.parentElement.innerHTML='<div class=\'thumb-placeholder\'>📦</div>'">`
+                            : `<div class="thumb-placeholder">📦</div>`
+                        }
+                    </div>
+
+                    <!-- Info -->
+                    <div class="item-info">
+                        <div class="item-info-name">${item.nama_item}</div>
+                        <div class="item-info-meta">by ${item.adminUsername || 'Admin'}</div>
+                        <div class="item-info-desc">${item.deskripsi || '-'}</div>
+                    </div>
+
+                    <!-- Price + Actions -->
+                    <div class="item-right">
+                        <div class="item-price">${formatRupiah(item.harga)}</div>
+                        <div class="item-actions">
+                            <button class="btn-edit" onclick="openEditModal(${item.id_item})" title="Edit">✏️</button>
+                            <button class="btn-delete" onclick="openDeleteModal(${item.id_item}, '${item.nama_item.replace(/'/g, "\\'")}')" title="Hapus">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+        } catch (err) {
+            document.getElementById('itemsList').innerHTML =
+                `<div class="empty-state" style="color:#e74c3c;">Gagal memuat produk.</div>`;
+        }
+    }
+
+    // ══ MODAL: ADD ══
+    function openAddModal() {
+        editingItemId = null;
+        document.getElementById('modalTitle').textContent = 'Tambah Produk Baru';
+        document.getElementById('field-nama').value = '';
+        document.getElementById('field-harga').value = '';
+        document.getElementById('field-deskripsi').value = '';
+        document.getElementById('field-gambar').value = '';
+        document.getElementById('modalError').textContent = '';
+        document.getElementById('itemModal').classList.add('show');
+    }
+
+    // ══ MODAL: EDIT ══
+    function openEditModal(itemId) {
+        const item = allItems.find(i => i.id_item === itemId);
+        if (!item) return;
+
+        editingItemId = itemId;
+        document.getElementById('modalTitle').textContent = 'Edit Produk';
+        document.getElementById('field-nama').value = item.nama_item || '';
+        document.getElementById('field-harga').value = item.harga || '';
+        document.getElementById('field-deskripsi').value = item.deskripsi || '';
+        document.getElementById('field-gambar').value = item.gambar_item || '';
+        document.getElementById('modalError').textContent = '';
+        document.getElementById('itemModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('itemModal').classList.remove('show');
+        editingItemId = null;
+    }
+
+    // ══ SAVE (Add or Edit) ══
+    async function saveItem() {
+        const nama = document.getElementById('field-nama').value.trim();
+        const harga = document.getElementById('field-harga').value.trim();
+        const deskripsi = document.getElementById('field-deskripsi').value.trim();
+        const gambar = document.getElementById('field-gambar').value.trim();
+        const errorEl = document.getElementById('modalError');
+
+        if (!nama || !harga) {
+            errorEl.textContent = 'Nama dan harga wajib diisi!';
+            return;
+        }
+
+        const body = {
+            nama_item: nama,
+            harga: parseFloat(harga),
+            deskripsi: deskripsi,
+            gambar_item: gambar
+        };
+
+        try {
+            let res;
+            if (editingItemId) {
+                // PUT - update
+                res = await fetch(`/api/items/${editingItemId}`, {
+                    method: 'PUT',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ ...body, id_item: editingItemId })
+                });
+            } else {
+                // POST - create
+                res = await fetch('/api/items', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify(body)
+                });
+            }
+
+            if (res.ok) {
+                closeModal();
+                showToast(editingItemId ? '✅ Produk berhasil diupdate!' : '✅ Produk berhasil ditambahkan!');
+                loadItems();
+            } else {
+                errorEl.textContent = 'Gagal menyimpan produk.';
+            }
+        } catch (err) {
+            errorEl.textContent = 'Koneksi gagal.';
+        }
+    }
+
+    // ══ DELETE ══
+    function openDeleteModal(itemId, itemName) {
+        deletingItemId = itemId;
+        document.getElementById('deleteItemName').textContent =
+            `Apakah kamu yakin ingin menghapus "${itemName}"? Tindakan ini tidak bisa dibatalkan.`;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+        deletingItemId = null;
+    }
+
+    async function confirmDelete() {
+        if (!deletingItemId) return;
+        try {
+            const res = await fetch(`/api/items/${deletingItemId}`, {
+                method: 'DELETE',
+                headers: authHeaders()
+            });
+
+            if (res.ok) {
+                closeDeleteModal();
+                showToast('🗑️ Produk berhasil dihapus!');
+                loadItems();
+            } else {
+                showToast('❌ Gagal menghapus produk.');
+                closeDeleteModal();
+            }
+        } catch (err) {
+            showToast('❌ Koneksi gagal.');
+            closeDeleteModal();
+        }
+    }
+
+    // Close modals when clicking overlay
+    document.getElementById('itemModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+    // ── Init ──
+    loadItems();
+</script>
+
+</body>
+</html>

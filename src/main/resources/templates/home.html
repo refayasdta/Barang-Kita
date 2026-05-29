@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta name="view-transition" content="same-origin">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarangKita - Belanja Mudah</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #EDE8D5;
+            color: #1a1a1a;
+        }
+
+        /* ══════════════════════════════
+           NAVBAR
+        ══════════════════════════════ */
+        .navbar {
+            background: #ffffff;
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .nav-logo img {
+        height: 38px;
+        object-fit: contain;
+        /* Restores the soft shadow behind the transparent PNG */
+        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
+    }
+
+        /* Fallback logo if image missing */
+        .nav-logo-fallback {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-logo-fallback .logo-icon {
+            color: #F5A623;
+            font-size: 22px;
+        }
+
+        .nav-logo-fallback .logo-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1A5FCC;
+        }
+
+        .nav-search {
+            flex: 1;
+            max-width: 580px;
+            margin: 0 40px;
+            position: relative;
+        }
+
+        .nav-search input {
+            width: 100%;
+            padding: 10px 44px 10px 20px;
+            border: 1.5px solid #e0dbd0;
+            border-radius: 50px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            background: #fff;
+            color: #333;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .nav-search input:focus {
+            border-color: #1A5FCC;
+        }
+
+        .nav-search input::placeholder { color: #aaa; }
+
+        .nav-search .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            color: #444;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .nav-icon-btn:hover { color: #1A5FCC; }
+
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: #F5A623;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-admin-panel {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: #1A5FCC;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-admin-panel:hover { background: #154fa8; }
+
+        /* ══════════════════════════════
+           HERO BANNER
+        ══════════════════════════════ */
+        .hero {
+            width: 100%;
+            height: 440px;
+            background: linear-gradient(to bottom, #5BC8F0 0%, #2A8FD4 40%, #1A5FCC 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-content {
+            padding: 0 80px;
+            z-index: 2;
+            flex: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 52px;
+            font-weight: 800;
+            color: white;
+            line-height: 1.15;
+            margin-bottom: 14px;
+        }
+
+        .hero-content p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.88);
+            font-weight: 500;
+        }
+
+        .hero-image {
+            position: absolute;
+            right: 280px;
+            bottom: 48;
+            height: 350px;
+            z-index: 2;
+        }
+
+        .hero-image img {
+        height: 100%;
+        object-fit: contain;
+        /* Adds the shadow to the large icon so it pops against the blue background */
+        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
+    }
+
+        /* Fallback hero figure */
+        .hero-figure-fallback {
+            position: absolute;
+            right: 100px;
+            bottom: 0;
+            height: 380px;
+            z-index: 2;
+        }
+
+        .hero-figure-fallback svg {
+            height: 100%;
+            width: auto;
+        }
+
+        /* Subtle dot pattern on hero */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 28px 28px;
+            z-index: 1;
+        }
+
+        /* ══════════════════════════════
+           ITEMS SECTION
+        ══════════════════════════════ */
+        .items-section {
+            background: #EDE8D5;
+            padding: 48px 60px;
+            min-height: 300px;
+        }
+
+        .items-section h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 28px;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        /* ── ITEM CARD ── */
+        .item-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+        }
+
+        .item-card-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #EDEAEA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .item-card-image img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
+        }
+
+        .item-card-image .img-placeholder {
+            font-size: 60px;
+            opacity: 0.4;
+        }
+
+        .item-card-body {
+            padding: 16px 18px 20px;
+        }
+
+        .item-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-card-seller {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .item-card-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: #1A5FCC;
+            margin-bottom: 14px;
+        }
+
+        .btn-detail {
+            width: 100%;
+            padding: 10px;
+            background: #4DD9D5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-detail:hover { background: #38c5c1; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 0;
+            color: #999;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* ── LOADING ── */
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 0;
+            color: #aaa;
+            font-size: 15px;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e0dbd0;
+            border-top-color: #1A5FCC;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ══════════════════════════════
+           FOOTER
+        ══════════════════════════════ */
+        footer {
+            background: #F5F0E8;
+            padding: 52px 80px 0;
+            border-top: 1px solid #e0dbd0;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 40px;
+            padding-bottom: 48px;
+        }
+
+        .footer-brand .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 14px;
+            text-decoration: none;
+        }
+
+        .footer-brand .footer-logo img {
+        height: 32px;
+        object-fit: contain;
+        /* Restores the shadow here as well for consistency */
+        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
+    }
+
+        .footer-logo-fallback {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer-logo-fallback .logo-icon { color: #F5A623; font-size: 18px; }
+        .footer-logo-fallback .logo-name { font-size: 18px; font-weight: 800; color: #1A5FCC; }
+
+        .footer-brand p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            max-width: 200px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1A5FCC;
+            margin-bottom: 16px;
+        }
+
+        .footer-col ul { list-style: none; }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul li a {
+            font-size: 13px;
+            color: #555;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-col ul li a:hover { color: #1A5FCC; }
+
+        .footer-bottom {
+            border-top: 1px solid #e0dbd0;
+            padding: 18px 0;
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+        }
+
+        /* ══════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════ */
+        @media (max-width: 1100px) {
+            .items-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .items-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-content h1 { font-size: 34px; }
+            .hero-image, .hero-figure-fallback { right: 20px; height: 260px; }
+            .footer-top { grid-template-columns: 1fr 1fr; }
+            .navbar { padding: 0 20px; }
+            .nav-search { margin: 0 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+    <a href="/home" class="nav-logo" id="navLogo">
+        <img src="/assets/logo-barangkita-final.png" alt="BarangKita"
+             onerror="this.parentElement.innerHTML='<div class=\'nav-logo-fallback\'><span class=\'logo-icon\'>🚶</span><span class=\'logo-name\'>barangkita</span></div>'">
+    </a>
+
+    <div class="nav-search">
+        <input type="text" id="searchInput" placeholder="Cari produk..." onkeydown="handleSearch(event)"/>
+        <span class="search-icon" onclick="doSearch()">🔍</span>
+    </div>
+
+    <div class="nav-icons">
+        <button class="nav-icon-btn" title="Wishlist">♡</button>
+        <button class="nav-icon-btn" onclick="window.location.href='/profile'" title="Profile">👤</button>
+        <button class="btn-admin-panel" id="adminPanelBtn" onclick="window.location.href='/admin-dashboard'">
+            ⚙ Admin Panel
+        </button>
+        <button class="nav-icon-btn" onclick="window.location.href='/cart'" title="Keranjang">
+            🛒
+            <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Welcome to<br>barangkita</h1>
+        <p>Belanja Mudah, Harga Bersahabat, Barang Berkualitas</p>
+    </div>
+
+    <div class="hero-image" id="heroImage">
+        <img src="/assets/icon-barangkita-final.png" alt="BarangKita"
+             onerror="this.parentElement.innerHTML=heroFallback()">
+    </div>
+</section>
+
+<!-- ══ ITEMS SECTION ══ -->
+<section class="items-section">
+    <div class="items-grid" id="itemsGrid">
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <div>Memuat produk...</div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+    <div class="footer-top">
+        <div class="footer-brand">
+            <a href="/home" class="footer-logo">
+                <img src="/assets/logo-barangkita-final.png" alt="BarangKita"
+                     onerror="this.parentElement.innerHTML='<div class=\'footer-logo-fallback\'><span class=\'logo-icon\'>🚶</span><span class=\'logo-name\'>barangkita</span></div>'">
+            </a>
+            <p>Platform belanja online terpercaya dengan ribuan produk berkualitas.</p>
+        </div>
+
+        <div class="footer-col">
+            <h4>Tentang Kami</h4>
+            <ul>
+                <li><a href="#">Tentang Barang Kita</a></li>
+                <li><a href="#">Karir</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Hubungi Kami</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Bantuan</h4>
+            <ul>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Cara Belanja</a></li>
+                <li><a href="#">Pengiriman</a></li>
+                <li><a href="#">Pengembalian</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Ikuti Kami</h4>
+            <ul>
+                <li><a href="#">Facebook</a></li>
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">Twitter</a></li>
+                <li><a href="#">TikTok</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 Barang Kita. All rights reserved.
+    </div>
+</footer>
+
+<script>
+    // ── Hero fallback SVG (yellow walking figure) ──
+    function heroFallback() {
+        return `<svg viewBox="0 0 200 380" xmlns="http://www.w3.org/2000/svg" height="100%">
+            <ellipse cx="110" cy="38" rx="28" ry="28" fill="#F5A623"/>
+            <rect x="85" y="70" width="50" height="110" rx="14" fill="#F5A623"/>
+            <rect x="60" y="75" width="28" height="80" rx="12" fill="#F5A623" transform="rotate(-20 74 115)"/>
+            <rect x="108" y="75" width="28" height="80" rx="12" fill="#F5A623" transform="rotate(15 122 115)"/>
+            <rect x="82" y="178" width="28" height="100" rx="12" fill="#F5A623" transform="rotate(10 96 228)"/>
+            <rect x="108" y="178" width="28" height="100" rx="12" fill="#F5A623" transform="rotate(-12 122 228)"/>
+            <rect x="130" y="140" width="14" height="60" rx="7" fill="#F5A623" transform="rotate(20 137 170)"/>
+            <rect x="148" y="190" width="28" height="14" rx="6" fill="#F5A623" transform="rotate(20 162 197)"/>
+            <rect x="156" y="195" width="28" height="14" rx="6" fill="#F5A623" transform="rotate(20 170 202)"/>
+        </svg>`;
+    }
+
+    // ── Format currency ──
+    function formatRupiah(amount) {
+        return 'Rp ' + Number(amount).toLocaleString('id-ID');
+    }
+
+    // ── Fetch and render items ──
+    async function loadItems(keyword = '') {
+        const grid = document.getElementById('itemsGrid');
+        grid.innerHTML = `<div class="loading-state"><div class="spinner"></div><div>Memuat produk...</div></div>`;
+
+        try {
+            const url = keyword
+                ? `/api/items/search?keyword=${encodeURIComponent(keyword)}`
+                : '/api/items';
+
+            const res = await fetch(url);
+            const items = await res.json();
+
+            if (!items || items.length === 0) {
+                grid.innerHTML = `<div class="empty-state">No items yet :(</div>`;
+                return;
+            }
+
+            grid.innerHTML = items.map(item => `
+                <a class="item-card" href="/item-detail?id=${item.id_item}">
+                    <div class="item-card-image">
+                        ${item.gambar_item
+                            ? `<img src="/assets/${item.gambar_item}" alt="${item.nama_item}"
+                                    onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'>📦</div>'">`
+                            : `<div class="img-placeholder">📦</div>`
+                        }
+                    </div>
+                    <div class="item-card-body">
+                        <div class="item-card-name">${item.nama_item}</div>
+                        <div class="item-card-seller">by ${item.adminUsername || 'BarangKita'}</div>
+                        <div class="item-card-price">${formatRupiah(item.harga)}</div>
+                        <button class="btn-detail">Lihat Detail</button>
+                    </div>
+                </a>
+            `).join('');
+
+        } catch (err) {
+            grid.innerHTML = `<div class="empty-state">Gagal memuat produk. Coba lagi nanti.</div>`;
+        }
+    }
+
+    // ── Search ──
+    function handleSearch(e) {
+        if (e.key === 'Enter') doSearch();
+    }
+
+    function doSearch() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        loadItems(keyword);
+    }
+
+    // ── Cart badge ──
+    function updateCartBadge() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const userId = getUserIdFromToken(token);
+        if (!userId) return;
+
+        fetch(`/api/carts/user/${userId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(r => r.json())
+        .then(carts => {
+            const badge = document.getElementById('cartBadge');
+            if (carts && carts.length > 0) {
+                badge.textContent = carts.length;
+                badge.style.display = 'flex';
+            }
+        })
+        .catch(() => {});
+    }
+
+    // ── Decode JWT to get user id ──
+    function getUserIdFromToken(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.id || payload.sub || null;
+        } catch { return null; }
+    }
+
+    // ── Check auth ──
+    function checkAuth() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        // Show Admin Panel button if role is Admin
+        const role = localStorage.getItem('role');
+        if (role === 'Admin') {
+            const btn = document.getElementById('adminPanelBtn');
+            if (btn) btn.style.display = 'flex';
+        }
+    }
+
+    // ── Init ──
+    checkAuth();
+    loadItems();
+    updateCartBadge();
+</script>
+
+</body>
+</html>

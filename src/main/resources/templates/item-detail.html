@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta name="view-transition" content="same-origin">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Produk - BarangKita</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #EDE8D5;
+            color: #1a1a1a;
+        }
+
+        /* ══════════════════════════════
+           NAVBAR (Back only)
+        ══════════════════════════════ */
+        .navbar {
+            background: #ffffff;
+            padding: 0 40px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover { color: #1A5FCC; }
+
+        .back-btn .arrow { font-size: 18px; }
+
+        /* ══════════════════════════════
+           MAIN DETAIL SECTION
+        ══════════════════════════════ */
+        .detail-section {
+            padding: 48px 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ── LEFT: Image Card ── */
+        .image-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-inner {
+            width: 100%;
+            height: 100%;
+            background: #EDEAEA;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .image-inner img {
+            max-width: 70%;
+            max-height: 70%;
+            object-fit: contain;
+        }
+
+        .image-inner .img-placeholder {
+            font-size: 80px;
+            opacity: 0.35;
+        }
+
+        /* ── RIGHT: Info ── */
+        .detail-info {
+            padding-top: 10px;
+        }
+
+        .detail-name {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1.25;
+            margin-bottom: 20px;
+        }
+
+        .detail-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1A5FCC;
+            margin-bottom: 28px;
+        }
+
+        .detail-desc-label {
+            font-size: 16px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .detail-desc {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.75;
+            margin-bottom: 32px;
+        }
+
+        /* ── Action Row ── */
+        .action-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-add-cart {
+            flex: 1;
+            padding: 16px 24px;
+            background: #4DD9D5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-add-cart:hover { background: #38c5c1; }
+        .btn-add-cart:active { transform: scale(0.98); }
+
+        .btn-wishlist {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 2px solid #F5A623;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: background 0.2s;
+            color: #F5A623;
+        }
+
+        .btn-wishlist:hover { background: #fff8ee; }
+        .btn-wishlist.active { background: #F5A623; color: white; }
+
+        /* ── Toast notification ── */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 999;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ══════════════════════════════
+           PRODUK LAIN SECTION
+        ══════════════════════════════ */
+        .other-section {
+            padding: 0 80px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .other-section h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1A5FCC;
+            margin-bottom: 24px;
+        }
+
+        .other-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        /* ── Item Card ── */
+        .item-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+        }
+
+        .item-card-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #EDEAEA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .item-card-image img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+
+        .item-card-image .img-placeholder { font-size: 52px; opacity: 0.35; }
+
+        .item-card-body { padding: 16px 18px 20px; }
+
+        .item-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .item-card-seller {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .item-card-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: #1A5FCC;
+            margin-bottom: 14px;
+        }
+
+        .btn-detail {
+            width: 100%;
+            padding: 10px;
+            background: #4DD9D5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-detail:hover { background: #38c5c1; }
+
+        /* ── Loading / Error ── */
+        .loading-state {
+            text-align: center;
+            padding: 60px 0;
+            color: #aaa;
+            font-size: 15px;
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e0dbd0;
+            border-top-color: #1A5FCC;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ══════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════ */
+        @media (max-width: 1000px) {
+            .detail-section { grid-template-columns: 1fr; padding: 32px 32px; gap: 32px; }
+            .other-section { padding: 0 32px 48px; }
+            .other-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .detail-name { font-size: 24px; }
+            .other-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+    <button class="back-btn" onclick="goBack()">
+        <span class="arrow">←</span>
+        <span>Kembali</span>
+    </button>
+</nav>
+
+<!-- ══ DETAIL SECTION ══ -->
+<div class="detail-section" id="detailSection">
+    <div class="loading-state" style="grid-column:1/-1;">
+        <div class="spinner"></div>
+        <div>Memuat produk...</div>
+    </div>
+</div>
+
+<!-- ══ PRODUK LAIN ══ -->
+<div class="other-section">
+    <h2>Produk Lain</h2>
+    <div class="other-grid" id="otherGrid">
+        <div class="loading-state">
+            <div class="spinner"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<script>
+    let currentItemId = null;
+
+    // ── Helpers ──
+    function formatRupiah(amount) {
+        return 'Rp ' + Number(amount).toLocaleString('id-ID');
+    }
+
+    function getQueryParam(name) {
+        return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function showToast(msg, duration = 2500) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function goBack() {
+        if (document.referrer) {
+            window.history.back();
+        } else {
+            window.location.href = '/home';
+        }
+    }
+
+    // ── Render main item detail ──
+    function renderDetail(item) {
+        const section = document.getElementById('detailSection');
+        section.innerHTML = `
+            <!-- LEFT: Image -->
+            <div class="image-card">
+                <div class="image-inner">
+                    ${item.gambar_item
+                        ? `<img src="/images/${item.gambar_item}" alt="${item.nama_item}"
+                                onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'>📦</div>'">`
+                        : `<div class="img-placeholder">📦</div>`
+                    }
+                </div>
+            </div>
+
+            <!-- RIGHT: Info -->
+            <div class="detail-info">
+                <div class="detail-name">${item.nama_item}</div>
+                <div class="detail-price">${formatRupiah(item.harga)}</div>
+                <div class="detail-desc-label">Deskripsi Produk</div>
+                <div class="detail-desc">${item.deskripsi || 'Tidak ada deskripsi.'}</div>
+                <div class="action-row">
+                    <button class="btn-add-cart" onclick="addToCart(${item.id_item})">
+                        🛒 Tambah ke Keranjang
+                    </button>
+                    <button class="btn-wishlist" id="wishlistBtn" onclick="toggleWishlist(${item.id_item})">
+                        ♡
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // ── Load item detail ──
+    async function loadDetail(id) {
+        try {
+            const res = await fetch(`/api/items/${id}`);
+            if (!res.ok) throw new Error('Not found');
+            const item = await res.json();
+            renderDetail(item);
+        } catch (err) {
+            document.getElementById('detailSection').innerHTML =
+                `<div class="loading-state" style="grid-column:1/-1; color:#e74c3c;">Produk tidak ditemukan.</div>`;
+        }
+    }
+
+    // ── Load other items (random, max 4, exclude current) ──
+    async function loadOtherItems(currentId) {
+        const grid = document.getElementById('otherGrid');
+        try {
+            const res = await fetch('/api/items');
+            const allItems = await res.json();
+
+            // Filter out current item
+            const others = allItems.filter(i => i.id_item !== currentId);
+
+            // Shuffle and take max 4
+            const shuffled = others.sort(() => Math.random() - 0.5).slice(0, 4);
+
+            if (shuffled.length === 0) {
+                grid.innerHTML = `<div class="loading-state" style="color:#aaa;">Tidak ada produk lain.</div>`;
+                return;
+            }
+
+            grid.innerHTML = shuffled.map(item => `
+                <a class="item-card" href="/item-detail?id=${item.id_item}">
+                    <div class="item-card-image">
+                        ${item.gambar_item
+                            ? `<img src="/images/${item.gambar_item}" alt="${item.nama_item}"
+                                    onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'>📦</div>'">`
+                            : `<div class="img-placeholder">📦</div>`
+                        }
+                    </div>
+                    <div class="item-card-body">
+                        <div class="item-card-name">${item.nama_item}</div>
+                        <div class="item-card-seller">by ${item.adminUsername || 'BarangKita'}</div>
+                        <div class="item-card-price">${formatRupiah(item.harga)}</div>
+                        <button class="btn-detail">Lihat Detail</button>
+                    </div>
+                </a>
+            `).join('');
+
+        } catch (err) {
+            grid.innerHTML = `<div class="loading-state" style="color:#aaa;">Gagal memuat produk lain.</div>`;
+        }
+    }
+
+    // ── Add to Cart ──
+    async function addToCart(itemId) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        try {
+            const userId = getUserIdFromToken(token);
+            const res = await fetch('/api/carts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    id_user: userId,
+                    id_item: itemId,
+                    jumlah: 1
+                })
+            });
+
+            if (res.ok) {
+                showToast('✅ Produk ditambahkan ke keranjang!');
+            } else {
+                showToast('❌ Gagal menambahkan ke keranjang.');
+            }
+        } catch (err) {
+            showToast('❌ Koneksi gagal.');
+        }
+    }
+
+    // ── Wishlist toggle (local only for now) ──
+    function toggleWishlist(itemId) {
+        const btn = document.getElementById('wishlistBtn');
+        const isActive = btn.classList.contains('active');
+        if (isActive) {
+            btn.classList.remove('active');
+            btn.textContent = '♡';
+            showToast('Dihapus dari wishlist');
+        } else {
+            btn.classList.add('active');
+            btn.textContent = '♥';
+            showToast('❤️ Ditambahkan ke wishlist!');
+        }
+    }
+
+    // ── Decode JWT ──
+    function getUserIdFromToken(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.id || payload.sub || null;
+        } catch { return null; }
+    }
+
+    // ── Init ──
+    const itemId = parseInt(getQueryParam('id'));
+    if (!itemId) {
+        window.location.href = '/home';
+    } else {
+        currentItemId = itemId;
+        loadDetail(itemId);
+        loadOtherItems(itemId);
+    }
+</script>
+
+</body>
+</html>

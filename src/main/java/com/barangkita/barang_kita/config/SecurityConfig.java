@@ -29,8 +29,9 @@ public class SecurityConfig {
                 
                 .requestMatchers("/assets/**").permitAll()
 
-                .requestMatchers("/login", "/register").permitAll()
-                
+                .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/profile", "/edit-profile", "/order-history").permitAll()
+                .requestMatchers("/admin-dashboard", "/admin-orders").permitAll()
+
                 .requestMatchers("/api/auth/**").permitAll()
                 
                 .requestMatchers(HttpMethod.GET, "/api/items/**").permitAll()
