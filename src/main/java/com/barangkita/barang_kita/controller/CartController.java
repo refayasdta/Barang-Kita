@@ -3,6 +3,7 @@ package com.barangkita.barang_kita.controller;
 import com.barangkita.barang_kita.entity.Cart;
 import com.barangkita.barang_kita.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -27,5 +28,16 @@ public class CartController {
     public String deleteCart(@PathVariable int id) {
         cartService.deleteCart(id);
         return "Cart deleted successfully";
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCart(@PathVariable int id, @RequestBody Cart cart) {
+        Cart existing = cartService.getCartById(id);
+        if (existing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        existing.setJumlah(cart.getJumlah());
+        existing.setTotal_harga(cart.getTotal_harga());
+        return ResponseEntity.ok(cartService.saveCart(existing));
     }
 }

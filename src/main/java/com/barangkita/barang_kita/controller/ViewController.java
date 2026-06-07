@@ -30,4 +30,25 @@ public class ViewController {
     public String cart() {
         return "cart";
     }
+
+    @GetMapping("/checkout")
+    public String checkout() {
+        return "checkout";
+    }
+
+    @GetMapping("/admin-orders")
+    public String adminOrders() {
+        return "admin-orders";
+    }
+
+    @GetMapping("/profile")
+    public String profile() { return "profile"; }
+
+    @GetMapping("/edit-profile")
+    public String editProfile() { return "edit-profile"; }
+
+    @GetMapping("/order-history")
+    public String orderHistory() { 
+        return "order-history"; 
+    }
 }

@@ -13,6 +13,8 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id_cart;
+    private int jumlah;
+    private int id_item;
 
     private int id_user;
     private double total_harga;

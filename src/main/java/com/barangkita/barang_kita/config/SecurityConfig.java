@@ -27,9 +27,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 
-                .requestMatchers("/assets/**").permitAll()
+                .requestMatchers("/images/**", "/assets/**", "/favicon.ico").permitAll()
 
-                .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/profile", "/edit-profile", "/order-history").permitAll()
+                .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/checkout", "/profile", "/edit-profile", "/order-history").permitAll()
                 .requestMatchers("/admin-dashboard", "/admin-orders").permitAll()
 
                 .requestMatchers("/api/auth/**").permitAll()
@@ -40,7 +40,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/items/**").hasAuthority("Admin")
                 .requestMatchers(HttpMethod.DELETE, "/api/items/**").hasAuthority("Admin")
 
-                .requestMatchers("/api/carts/**").hasAuthority("User")
+                .requestMatchers(HttpMethod.GET, "/api/carts/**").hasAnyAuthority("User", "Admin")
+                .requestMatchers(HttpMethod.POST, "/api/carts/**").hasAnyAuthority("User", "Admin")
+                .requestMatchers(HttpMethod.PUT, "/api/carts/**").hasAuthority("User")
+                .requestMatchers(HttpMethod.DELETE, "/api/carts/**").hasAuthority("User")
 
                 .requestMatchers(HttpMethod.GET, "/api/orders/user/**").hasAuthority("User")
                 .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAuthority("User")
@@ -48,6 +51,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/orders/all").hasAuthority("Admin")
                 .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasAuthority("Admin")
                 .requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyAuthority("Admin", "User")
+
+
+                .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyAuthority("User", "Admin")
+                .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAnyAuthority("User", "Admin")
 
                 .anyRequest().authenticated()
             )

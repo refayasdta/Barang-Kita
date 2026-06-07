@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <script src="/js/auth-interceptor.js"></script>
     <meta name="view-transition" content="same-origin">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -527,8 +528,9 @@
             <textarea id="field-deskripsi" rows="3" placeholder="Deskripsi produk..."></textarea>
         </div>
         <div class="modal-field">
-            <label>Nama File Gambar</label>
-            <input type="text" id="field-gambar" placeholder="Contoh: produk.jpg" />
+            <label>Upload Gambar Produk (Opsional)</label>
+            <input type="file" id="itemImageFile" accept="image/png, image/jpeg, image/jpg" style="padding: 10px; background: #fff; border: 2px dashed #4DD9D5;" />
+            <small style="color: #888; font-size: 11px; margin-top: 4px; display: block;">Jika kosong, gambar lama (saat edit) tidak akan berubah.</small>
         </div>
 
         <div class="modal-error" id="modalError"></div>
@@ -643,7 +645,7 @@
         document.getElementById('field-nama').value = '';
         document.getElementById('field-harga').value = '';
         document.getElementById('field-deskripsi').value = '';
-        document.getElementById('field-gambar').value = '';
+        document.getElementById('itemImageFile').value = '';
         document.getElementById('modalError').textContent = '';
         document.getElementById('itemModal').classList.add('show');
     }
@@ -658,7 +660,7 @@
         document.getElementById('field-nama').value = item.nama_item || '';
         document.getElementById('field-harga').value = item.harga || '';
         document.getElementById('field-deskripsi').value = item.deskripsi || '';
-        document.getElementById('field-gambar').value = item.gambar_item || '';
+        document.getElementById('itemImageFile').value = '';
         document.getElementById('modalError').textContent = '';
         document.getElementById('itemModal').classList.add('show');
     }
@@ -669,11 +671,14 @@
     }
 
     // ══ SAVE (Add or Edit) ══
+    // ══ SAVE (Add or Edit with File Upload) ══
     async function saveItem() {
+        const currentToken = localStorage.getItem('token');
+
         const nama = document.getElementById('field-nama').value.trim();
         const harga = document.getElementById('field-harga').value.trim();
         const deskripsi = document.getElementById('field-deskripsi').value.trim();
-        const gambar = document.getElementById('field-gambar').value.trim();
+        const fileInput = document.getElementById('itemImageFile');
         const errorEl = document.getElementById('modalError');
 
         if (!nama || !harga) {
@@ -681,28 +686,32 @@
             return;
         }
 
-        const body = {
-            nama_item: nama,
-            harga: parseFloat(harga),
-            deskripsi: deskripsi,
-            gambar_item: gambar
-        };
+        // Use FormData instead of JSON
+        const formData = new FormData();
+        formData.append('nama_item', nama);
+        formData.append('harga', harga);
+        formData.append('deskripsi', deskripsi);
+        
+        // Append file if selected
+        if (fileInput.files.length > 0) {
+            formData.append('file', fileInput.files[0]);
+        }
 
         try {
             let res;
             if (editingItemId) {
-                // PUT - update
+                // PUT - update (Make sure your backend PUT accepts FormData/MultipartFile too!)
                 res = await fetch(`/api/items/${editingItemId}`, {
                     method: 'PUT',
-                    headers: authHeaders(),
-                    body: JSON.stringify({ ...body, id_item: editingItemId })
+                    headers: { 'Authorization': 'Bearer ' + currentToken }, // NO Content-Type
+                    body: formData
                 });
             } else {
                 // POST - create
                 res = await fetch('/api/items', {
                     method: 'POST',
-                    headers: authHeaders(),
-                    body: JSON.stringify(body)
+                    headers: { 'Authorization': 'Bearer ' + currentToken }, // NO Content-Type
+                    body: formData
                 });
             }
 
@@ -715,6 +724,7 @@
             }
         } catch (err) {
             errorEl.textContent = 'Koneksi gagal.';
+            console.error(err);
         }
     }
 

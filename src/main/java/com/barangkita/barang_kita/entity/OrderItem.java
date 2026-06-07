@@ -11,49 +11,48 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    @JsonIgnore // Prevents the JSON infinite loop when fetching orders
+    @JsonIgnore
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
+    private int id_item;
+    private String nama_item;
+    private int jumlah;
+    private double harga;
+    private double subtotal;
 
-    private Integer quantity;
-    
-    @Column(name = "harga_satuan")
-    private Double hargaSatuan; // Price at the time of purchase
-    
-    private Double subtotal;
-
-    // Constructors
+    // ── Constructors ──
     public OrderItem() {}
 
-    public OrderItem(Order order, Item item, Integer quantity, Double hargaSatuan, Double subtotal) {
+    public OrderItem(Order order, int id_item, String nama_item, int jumlah, double harga) {
         this.order = order;
-        this.item = item;
-        this.quantity = quantity;
-        this.hargaSatuan = hargaSatuan;
-        this.subtotal = subtotal;
+        this.id_item = id_item;
+        this.nama_item = nama_item;
+        this.jumlah = jumlah;
+        this.harga = harga;
+        this.subtotal = harga * jumlah;
     }
 
-    // Getters and Setters
+    // ── Getters & Setters ──
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public Order getOrder() { return order; }
     public void setOrder(Order order) { this.order = order; }
 
-    public Item getItem() { return item; }
-    public void setItem(Item item) { this.item = item; }
+    public int getId_item() { return id_item; }
+    public void setId_item(int id_item) { this.id_item = id_item; }
 
-    public Integer getQuantity() { return quantity; }
-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    public String getNama_item() { return nama_item; }
+    public void setNama_item(String nama_item) { this.nama_item = nama_item; }
 
-    public Double getHargaSatuan() { return hargaSatuan; }
-    public void setHargaSatuan(Double hargaSatuan) { this.hargaSatuan = hargaSatuan; }
+    public int getJumlah() { return jumlah; }
+    public void setJumlah(int jumlah) { this.jumlah = jumlah; }
 
-    public Double getSubtotal() { return subtotal; }
-    public void setSubtotal(Double subtotal) { this.subtotal = subtotal; }
+    public double getHarga() { return harga; }
+    public void setHarga(double harga) { this.harga = harga; }
+
+    public double getSubtotal() { return subtotal; }
+    public void setSubtotal(double subtotal) { this.subtotal = subtotal; }
 }

@@ -23,4 +23,8 @@ public class CartService {
     public void deleteCart(int id) {
         cartRepository.deleteById(id);
     }
+
+    public Cart getCartById(int id) {
+        return cartRepository.findById(id).orElse(null);
+    }
 }

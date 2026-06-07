@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script src="/js/auth-interceptor.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Pesanan - BarangKita</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #EDE8D5;
+            color: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #ffffff;
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 24px; }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover { color: #1A5FCC; }
+
+        .divider { width: 1px; height: 22px; background: #ddd; }
+
+        .nav-title { font-size: 20px; font-weight: 800; color: #1A5FCC; }
+
+        .content { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
+
+        .header-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .header-card h2 { font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+        .header-card p { font-size: 13px; color: #888; font-weight: 500; }
+
+        .orders-list { display: flex; flex-direction: column; gap: 16px; }
+
+        .order-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s;
+        }
+
+        .order-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.09); }
+
+        .order-icon {
+            width: 48px;
+            height: 48px;
+            background: #EEF6FF;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .order-field { display: flex; flex-direction: column; gap: 3px; }
+
+        .field-label { font-size: 11px; color: #aaa; font-weight: 500; }
+
+        .field-value { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+
+        .field-value.blue { color: #1A5FCC; font-size: 15px; }
+
+        .col-id    { min-width: 110px; }
+        .col-email { min-width: 180px; flex: 1; }
+        .col-produk { min-width: 180px; flex: 1; }
+        .col-tanggal { min-width: 120px; }
+        .col-total { min-width: 130px; }
+        .col-status { min-width: 170px; }
+
+        .status-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+            transition: opacity 0.2s;
+        }
+
+        .status-select:hover { opacity: 0.85; }
+        .status-select.confirmed { background-color: #E8F8F0; color: #27ae60; }
+        .status-select.pending   { background-color: #FEF9E7; color: #F39C12; }
+        .status-select.cancelled { background-color: #FDEDEC; color: #e74c3c; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #aaa;
+            font-size: 16px;
+            font-weight: 600;
+            background: white;
+            border-radius: 16px;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e0dbd0;
+            border-top-color: #1A5FCC;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 999;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 900px) {
+            .order-card { flex-wrap: wrap; gap: 16px; }
+            .col-produk, .col-email { min-width: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <button class="back-btn" onclick="window.location.href='/admin-dashboard'">
+            ← Kembali ke Dashboard
+        </button>
+        <div class="divider"></div>
+        <span class="nav-title">Manajemen Pesanan</span>
+    </div>
+</nav>
+
+<div class="content">
+    <div class="header-card">
+        <h2>Semua Pesanan</h2>
+        <p id="orderCount">Memuat data...</p>
+    </div>
+
+    <div class="orders-list" id="ordersList">
+        <div class="empty-state">
+            <div class="spinner"></div>
+            <div style="margin-top:12px; color:#aaa;">Memuat pesanan...</div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const token = localStorage.getItem('token');
+    const role  = localStorage.getItem('role');
+
+    if (!token || role !== 'Admin') window.location.href = '/login';
+
+    function formatRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        return new Date(dateStr).toISOString().split('T')[0];
+    }
+
+    function formatOrderId(id) { return 'ORD-' + String(id).padStart(3, '0'); }
+
+    function showToast(msg, duration = 2500) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    function authHeaders() {
+        return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+    }
+
+    function getStatusClass(status) {
+        if (!status) return 'pending';
+        const s = status.toLowerCase();
+        if (s === 'confirmed') return 'confirmed';
+        if (s === 'cancelled') return 'cancelled';
+        return 'pending';
+    }
+
+    // ── Get product names from orderItems ──
+    function getProductNames(order) {
+        if (order.orderItems && order.orderItems.length > 0) {
+            return order.orderItems.map(i => i.nama_item || `Item #${i.id_item}`).join(', ');
+        }
+        return '-';
+    }
+
+    async function loadOrders() {
+        try {
+            const res = await fetch('/api/orders/all', { headers: authHeaders() });
+            const orders = await res.json();
+
+            document.getElementById('orderCount').textContent = `${orders.length} total pesanan`;
+
+            const list = document.getElementById('ordersList');
+
+            if (orders.length === 0) {
+                list.innerHTML = `<div class="empty-state">Belum ada pesanan masuk.</div>`;
+                return;
+            }
+
+            // Fetch user emails
+            const userEmails = {};
+            await Promise.all(orders.map(async (o) => {
+                if (o.id_user && !userEmails[o.id_user]) {
+                    try {
+                        const r = await fetch(`/api/users/${o.id_user}`, { headers: authHeaders() });
+                        if (r.ok) {
+                            const user = await r.json();
+                            userEmails[o.id_user] = user.email || `User #${o.id_user}`;
+                        } else {
+                            userEmails[o.id_user] = `User #${o.id_user}`;
+                        }
+                    } catch { userEmails[o.id_user] = `User #${o.id_user}`; }
+                }
+            }));
+
+            list.innerHTML = orders.map(order => {
+                const statusClass = getStatusClass(order.status);
+                const email = userEmails[order.id_user] || `User #${order.id_user}`;
+                const productNames = getProductNames(order);
+
+                return `
+                <div class="order-card" id="order-${order.id_order}">
+                    <div class="order-icon">📦</div>
+
+                    <div class="order-field col-id">
+                        <span class="field-label">Order ID</span>
+                        <span class="field-value">${formatOrderId(order.id_order)}</span>
+                    </div>
+
+                    <div class="order-field col-email">
+                        <span class="field-label">Pelanggan</span>
+                        <span class="field-value">${email}</span>
+                    </div>
+
+                    <div class="order-field col-produk">
+                        <span class="field-label">Produk</span>
+                        <span class="field-value">${productNames}</span>
+                    </div>
+
+                    <div class="order-field col-tanggal">
+                        <span class="field-label">Tanggal</span>
+                        <span class="field-value">${formatDate(order.tanggal_order)}</span>
+                    </div>
+
+                    <div class="order-field col-total">
+                        <span class="field-label">Total</span>
+                        <span class="field-value blue">${formatRupiah(order.total_pembayaran)}</span>
+                    </div>
+
+                    <div class="order-field col-status">
+                        <span class="field-label">Status Pembayaran</span>
+                        <select class="status-select ${statusClass}"
+                                id="status-${order.id_order}"
+                                onchange="updateStatus(${order.id_order}, this)">
+                            <option value="PENDING"   ${(!order.status || order.status === 'PENDING')   ? 'selected' : ''}>Pending</option>
+                            <option value="CONFIRMED" ${order.status === 'CONFIRMED' ? 'selected' : ''}>Confirmed</option>
+                            <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
+                </div>`;
+            }).join('');
+
+        } catch (err) {
+            document.getElementById('ordersList').innerHTML =
+                `<div class="empty-state" style="color:#e74c3c;">Gagal memuat pesanan.</div>`;
+        }
+    }
+
+    async function updateStatus(orderId, selectEl) {
+        const newStatus = selectEl.value;
+        selectEl.className = `status-select ${getStatusClass(newStatus)}`;
+
+        const endpointMap = {
+            'CONFIRMED': `/api/orders/${orderId}/confirm`,
+            'CANCELLED': `/api/orders/${orderId}/cancel`,
+            'PENDING':   `/api/orders/${orderId}/pending`
+        };
+
+        try {
+            const res = await fetch(endpointMap[newStatus], { method: 'PUT', headers: authHeaders() });
+            if (res.ok) {
+                showToast(`✅ Status ${formatOrderId(orderId)} diubah ke ${newStatus}`);
+            } else {
+                showToast('❌ Gagal mengubah status.');
+            }
+        } catch (err) {
+            showToast('❌ Koneksi gagal.');
+        }
+    }
+
+    loadOrders();
+</script>
+</body>
+</html>

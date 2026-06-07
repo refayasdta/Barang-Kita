@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <script src="/js/auth-interceptor.js"></script>
     <meta name="view-transition" content="same-origin">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,9 +16,6 @@
             color: #1a1a1a;
         }
 
-        /* ══════════════════════════════
-           NAVBAR (Back only)
-        ══════════════════════════════ */
         .navbar {
             background: #ffffff;
             padding: 0 40px;
@@ -486,8 +484,21 @@
             return;
         }
 
+        // Decode the JWT to get the id_akun
+        let userId = null;
         try {
-            const userId = getUserIdFromToken(token);
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            userId = payload.id_akun; 
+        } catch (e) {
+            console.error("Gagal membaca token");
+        }
+
+        if (!userId) {
+            alert("Sesi tidak valid, silakan login ulang.");
+            return;
+        }
+
+        try {
             const res = await fetch('/api/carts', {
                 method: 'POST',
                 headers: {
@@ -503,6 +514,7 @@
 
             if (res.ok) {
                 showToast('✅ Produk ditambahkan ke keranjang!');
+                // Optional: Update cart badge if you have one
             } else {
                 showToast('❌ Gagal menambahkan ke keranjang.');
             }
@@ -543,6 +555,7 @@
         loadDetail(itemId);
         loadOtherItems(itemId);
     }
+
 </script>
 
 </body>

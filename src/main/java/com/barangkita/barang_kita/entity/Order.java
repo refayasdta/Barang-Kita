@@ -24,6 +24,10 @@ public class Order {
 
     private String status = "PENDING";
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    // ── Methods ──
     public void createOrder() {
         this.tanggal_order = new Date();
         System.out.println("Order #" + id_order + " created on " + tanggal_order);
@@ -36,15 +40,7 @@ public class Order {
                " | Total: " + total_pembayaran;
     }
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>();
-
-    // Add these Getters and Setters to the bottom of the file
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
-    }
-
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
-    }
+    // ── Getters & Setters for orderItems ──
+    public List<OrderItem> getOrderItems() { return orderItems; }
+    public void setOrderItems(List<OrderItem> orderItems) { this.orderItems = orderItems; }
 }

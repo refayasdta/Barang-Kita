@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script src="/js/auth-interceptor.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - BarangKita</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #EDE8D5; color: #1a1a1a; min-height: 100vh; }
+
+        /* NAVBAR */
+        .navbar { background:#fff; padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+        .nav-logo { display:flex; align-items:center; text-decoration:none; flex-shrink:0; }
+        .nav-logo img { height:38px; object-fit:contain; }
+        .nav-logo-fallback { display:flex; align-items:center; gap:4px; }
+        .nav-logo-fallback .logo-icon { color:#F5A623; font-size:22px; }
+        .nav-logo-fallback .logo-name { font-size:22px; font-weight:800; color:#1A5FCC; }
+        .nav-search { flex:1; max-width:580px; margin:0 40px; position:relative; }
+        .nav-search input { width:100%; padding:10px 44px 10px 20px; border:1.5px solid #e0dbd0; border-radius:50px; font-size:14px; font-family:'Poppins',sans-serif; background:#fff; color:#333; outline:none; transition:border-color 0.2s; }
+        .nav-search input:focus { border-color:#1A5FCC; }
+        .nav-search input::placeholder { color:#aaa; }
+        .nav-search .search-icon { position:absolute; right:16px; top:50%; transform:translateY(-50%); color:#888; font-size:16px; cursor:pointer; }
+        .nav-icons { display:flex; align-items:center; gap:20px; }
+        .nav-icon-btn { background:none; border:none; cursor:pointer; position:relative; color:#444; font-size:22px; display:flex; align-items:center; transition:color 0.2s; }
+        .nav-icon-btn:hover { color:#1A5FCC; }
+        .cart-badge { position:absolute; top:-6px; right:-8px; background:#F5A623; color:white; font-size:10px; font-weight:800; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+        .btn-admin-panel { display:none; align-items:center; gap:6px; padding:8px 18px; background:#1A5FCC; color:white; border:none; border-radius:50px; font-size:13px; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; transition:background 0.2s; }
+        .btn-admin-panel:hover { background:#154fa8; }
+
+        /* CONTENT */
+        .checkout-content { max-width:900px; margin:40px auto; padding:0 24px 60px; }
+        .card { background:#fff; border-radius:16px; padding:24px 28px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+
+        /* ALAMAT */
+        .alamat-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+        .alamat-icon { width:32px; height:32px; background:#4DD9D5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+        .alamat-title { font-size:17px; font-weight:700; color:#1a1a1a; }
+        .alamat-name { font-size:14px; font-weight:700; color:#1a1a1a; margin-bottom:4px; }
+        .alamat-detail { font-size:13px; color:#666; line-height:1.5; }
+        .alamat-empty { font-size:13px; color:#aaa; font-style:italic; }
+
+        /* ITEMS */
+        .checkout-item { display:flex; align-items:center; gap:20px; }
+        .checkout-item + .checkout-item { margin-top:16px; padding-top:16px; border-top:1px solid #f0ece0; }
+        .item-thumb { width:90px; height:90px; background:#EDEAEA; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; font-size:11px; color:#999; font-weight:600; text-align:center; padding:6px; }
+        .item-thumb img { width:100%; height:100%; object-fit:contain; padding:8px; }
+        .item-info { flex:1; }
+        .item-info-name { font-size:14px; font-weight:600; color:#1a1a1a; margin-bottom:4px; line-height:1.4; }
+        .item-info-sub { font-size:12px; color:#888; }
+        .item-pricing { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; min-width:130px; }
+        .pricing-label { font-size:11px; color:#aaa; text-align:right; }
+        .pricing-value { font-size:13px; color:#555; text-align:right; }
+        .pricing-subtotal-label { font-size:11px; color:#aaa; text-align:right; margin-top:6px; }
+        .pricing-subtotal { font-size:15px; font-weight:700; color:#1A5FCC; text-align:right; }
+
+        /* RINGKASAN */
+        .ringkasan-title { font-size:17px; font-weight:700; color:#1a1a1a; margin-bottom:20px; }
+        .ringkasan-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+        .ringkasan-label { font-size:14px; color:#555; }
+        .ringkasan-value { font-size:14px; color:#1a1a1a; font-weight:500; }
+        .divider-line { height:1px; background:#f0ece0; margin:16px 0; }
+        .total-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+        .total-row-label { font-size:15px; font-weight:700; color:#1a1a1a; }
+        .total-row-amount { font-size:22px; font-weight:800; color:#1A5FCC; }
+
+        /* BUTTONS */
+        .action-buttons { display:flex; gap:16px; }
+        .btn-back-cart { flex:1; padding:15px; background:transparent; color:#1a1a1a; border:1.5px solid #ccc; border-radius:50px; font-size:14px; font-weight:600; font-family:'Poppins',sans-serif; cursor:pointer; transition:border-color 0.2s,color 0.2s; text-align:center; }
+        .btn-back-cart:hover { border-color:#1A5FCC; color:#1A5FCC; }
+        .btn-konfirmasi { flex:1; padding:15px; background:#F5A623; color:#1a1a1a; border:none; border-radius:50px; font-size:14px; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; transition:background 0.2s; text-align:center; }
+        .btn-konfirmasi:hover { background:#e09410; }
+        .btn-konfirmasi:disabled { background:#ddd; color:#aaa; cursor:not-allowed; }
+
+        /* LOADING */
+        .loading-state { text-align:center; padding:60px; color:#aaa; }
+        .spinner { width:36px; height:36px; border:3px solid #e0dbd0; border-top-color:#1A5FCC; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(80px); background:#1a1a1a; color:white; padding:12px 28px; border-radius:50px; font-size:14px; font-weight:600; z-index:999; opacity:0; transition:all 0.3s ease; pointer-events:none; }
+        .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+        /* SUCCESS */
+        .success-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; display:none; align-items:center; justify-content:center; }
+        .success-overlay.show { display:flex; }
+        .success-card { background:white; border-radius:20px; padding:48px 40px; text-align:center; max-width:380px; width:90%; animation:popIn 0.3s ease; }
+        @keyframes popIn { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+        .success-icon { font-size:56px; margin-bottom:16px; }
+        .success-title { font-size:20px; font-weight:800; margin-bottom:8px; color:#1a1a1a; }
+        .success-msg { font-size:13px; color:#888; margin-bottom:28px; }
+        .btn-ok { padding:13px 40px; background:#4DD9D5; color:white; border:none; border-radius:50px; font-size:14px; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; }
+        .btn-ok:hover { background:#38c5c1; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="/home" class="nav-logo">
+        <img src="/assets/logo-barangkita-final.png" alt="BarangKita"
+             onerror="this.parentElement.innerHTML='<div class=\'nav-logo-fallback\'><span class=\'logo-icon\'>🚶</span><span class=\'logo-name\'>barangkita</span></div>'">
+    </a>
+    <div class="nav-search">
+        <input type="text" placeholder="Cari produk..."
+               onkeydown="if(event.key==='Enter') window.location.href='/home?search='+this.value"/>
+        <span class="search-icon">🔍</span>
+    </div>
+    <div class="nav-icons">
+        <button class="nav-icon-btn" title="Wishlist">♡</button>
+        <button class="nav-icon-btn" onclick="window.location.href='/profile'" title="Profile">👤</button>
+        <button class="btn-admin-panel" id="adminPanelBtn" onclick="window.location.href='/admin-dashboard'">⚙ Admin Panel</button>
+        <button class="nav-icon-btn" onclick="window.location.href='/cart'" title="Keranjang">
+            🛒<span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+        </button>
+    </div>
+</nav>
+
+<!-- CHECKOUT CONTENT -->
+<div class="checkout-content" id="checkoutContent">
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <div>Memuat data checkout...</div>
+    </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+    <div class="success-card">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Pesanan Berhasil!</div>
+        <div class="success-msg">Pesananmu telah diterima dan sedang menunggu konfirmasi dari admin.</div>
+        <button class="btn-ok" onclick="window.location.href='/order-history'">Lihat Pesanan</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const token = localStorage.getItem('token');
+    const role  = localStorage.getItem('role');
+
+    if (!token) window.location.href = '/login';
+    if (role === 'Admin') { const b = document.getElementById('adminPanelBtn'); if(b) b.style.display='flex'; }
+
+    function formatRupiah(n) { return 'Rp' + Number(n).toLocaleString('id-ID'); }
+
+    function showToast(msg, duration=2500) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    function getUserFromToken(tok) {
+        try { return JSON.parse(atob(tok.split('.')[1])); } catch { return {}; }
+    }
+
+    let checkoutCartItems = [];
+    let itemDetailsMap = {};
+    let userProfile = {};
+
+    async function init() {
+        const checkoutIds = JSON.parse(localStorage.getItem('checkoutIds') || '[]');
+        if (checkoutIds.length === 0) { window.location.href = '/cart'; return; }
+
+        const userPayload = getUserFromToken(token);
+        const userId = userPayload.id_akun || null;
+
+        // Load user profile for address
+        if (userId) {
+            try {
+                const res = await fetch(`/api/users/${userId}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) userProfile = await res.json();
+            } catch(e) {}
+        }
+
+        // Load cart items
+        try {
+            const res = await fetch(`/api/carts/user/${userId}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const allCarts = await res.json();
+            checkoutCartItems = allCarts.filter(c => checkoutIds.includes(c.id_cart));
+        } catch(e) { showToast('❌ Gagal memuat data cart'); return; }
+
+        // Load item details
+        await Promise.all(checkoutCartItems.map(async (c) => {
+            if (!itemDetailsMap[c.id_item]) {
+                try {
+                    const r = await fetch(`/api/items/${c.id_item}`);
+                    if (r.ok) itemDetailsMap[c.id_item] = await r.json();
+                } catch(e) {}
+            }
+        }));
+
+        renderPage();
+    }
+
+    function renderPage() {
+        let subtotal = 0;
+        checkoutCartItems.forEach(c => {
+            const item = itemDetailsMap[c.id_item] || {};
+            subtotal += (item.harga || 0) * (c.jumlah || 1);
+        });
+        const shipping = 0;
+        const total = subtotal + shipping;
+
+        const hasAddress = userProfile.alamat || userProfile.nama;
+        const alamatHTML = hasAddress ? `
+            <div class="alamat-name">${userProfile.nama || '-'} (${userProfile.no_telepon || '-'})</div>
+            <div class="alamat-detail">${userProfile.alamat || 'Alamat belum diatur'}</div>
+        ` : `<div class="alamat-empty">Alamat belum diatur. Silakan update profil Anda.</div>`;
+
+        const itemsHTML = checkoutCartItems.map(c => {
+            const item = itemDetailsMap[c.id_item] || {};
+            const qty = c.jumlah || 1;
+            const harga = item.harga || 0;
+            const subtotalItem = harga * qty;
+            return `
+            <div class="checkout-item">
+                <div class="item-thumb">
+                    ${item.gambar_item
+                        ? `<img src="/images/${item.gambar_item}" alt="${item.nama_item || ''}"
+                                onerror="this.parentElement.textContent='${(item.nama_item||'Produk').replace(/'/g,"\\'")}'">`
+                        : item.nama_item || 'Produk'}
+                </div>
+                <div class="item-info">
+                    <div class="item-info-name">${item.nama_item || 'Produk tidak ditemukan'}</div>
+                    <div class="item-info-sub">Jumlah: ${qty}</div>
+                </div>
+                <div class="item-pricing">
+                    <div class="pricing-label">Harga Satuan</div>
+                    <div class="pricing-value">${formatRupiah(harga)}</div>
+                    <div class="pricing-subtotal-label">Subtotal</div>
+                    <div class="pricing-subtotal">${formatRupiah(subtotalItem)}</div>
+                </div>
+            </div>`;
+        }).join('');
+
+        document.getElementById('checkoutContent').innerHTML = `
+            <div class="card">
+                <div class="alamat-header">
+                    <div class="alamat-icon">📍</div>
+                    <div class="alamat-title">Alamat Pengiriman</div>
+                </div>
+                ${alamatHTML}
+            </div>
+            <div class="card">${itemsHTML}</div>
+            <div class="card">
+                <div class="ringkasan-title">Ringkasan Pembayaran</div>
+                <div class="ringkasan-row">
+                    <span class="ringkasan-label">Subtotal Produk</span>
+                    <span class="ringkasan-value">${formatRupiah(subtotal)}</span>
+                </div>
+                <div class="ringkasan-row">
+                    <span class="ringkasan-label">Subtotal Pengiriman</span>
+                    <span class="ringkasan-value">${formatRupiah(shipping)}</span>
+                </div>
+                <div class="divider-line"></div>
+                <div class="total-row">
+                    <span class="total-row-label">Total Pembayaran</span>
+                    <span class="total-row-amount">${formatRupiah(total)}</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-back-cart" onclick="window.location.href='/cart'">Kembali ke Keranjang</button>
+                    <button class="btn-konfirmasi" onclick="confirmPayment(${total})">Konfirmasi Pembayaran</button>
+                </div>
+            </div>`;
+    }
+
+    // ── Confirm Payment — now sends orderItems ──
+    async function confirmPayment(totalPembayaran) {
+        const userPayload = getUserFromToken(token);
+        const userId = userPayload.id_akun || null;
+
+        // Build orderItems list from cart
+        const orderItems = checkoutCartItems.map(c => {
+            const item = itemDetailsMap[c.id_item] || {};
+            return {
+                id_item: c.id_item,
+                nama_item: item.nama_item || 'Unknown',
+                jumlah: c.jumlah || 1,
+                harga: item.harga || 0,
+                subtotal: (item.harga || 0) * (c.jumlah || 1)
+            };
+        });
+
+        try {
+            const res = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    id_user: userId,
+                    total_pembayaran: totalPembayaran,
+                    status: 'PENDING',
+                    orderItems: orderItems
+                })
+            });
+
+            if (!res.ok) throw new Error('Failed');
+
+            // Delete checked-out cart items
+            await Promise.all(checkoutCartItems.map(c =>
+                fetch(`/api/carts/${c.id_cart}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                })
+            ));
+
+            localStorage.removeItem('checkoutIds');
+            document.getElementById('successOverlay').classList.add('show');
+
+        } catch(err) {
+            showToast('❌ Gagal memproses pesanan. Coba lagi.');
+        }
+    }
+
+    // Add this inside the <script> tag of your checkout.html
+
+    async function processCheckout() {
+        const token = localStorage.getItem('token');
+        
+        // 1. Get the payload data from your parsed JWT
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const userId = payload.id_akun;
+
+        // 2. Assuming you stored the selected cart items in a variable or localStorage
+        // (You will need to adapt this to how your checkout.html currently holds the items)
+        const checkoutItems = JSON.parse(localStorage.getItem('checkoutItems')) || [];
+        let totalPembayaran = 25000; // Start with Ongkos Kirim (Rp 25.000)
+
+        // 3. Format the orderItems exactly how Spring Boot expects them
+        const orderItemsPayload = checkoutItems.map(item => {
+            const subtotal = item.jumlah * item.harga;
+            totalPembayaran += subtotal;
+            return {
+                id_item: item.id_item,
+                nama_item: item.nama_item,
+                jumlah: item.jumlah,
+                harga: item.harga,
+                subtotal: subtotal
+            };
+        });
+
+        // 4. Build the final Order object
+        const orderData = {
+            id_user: userId,
+            total_pembayaran: totalPembayaran,
+            status: "PENDING", // Default status
+            orderItems: orderItemsPayload
+        };
+
+        try {
+            // 5. Send to Spring Boot
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            if (response.ok) {
+                alert("Pesanan berhasil dibuat!");
+                
+                // OPTIONAL: Call your DELETE /api/carts endpoint here to empty the user's cart
+                
+                // 6. REDIRECT DIRECTLY TO ORDER HISTORY
+                window.location.href = '/order-history';
+            } else {
+                alert("Gagal memproses checkout. Silakan coba lagi.");
+            }
+        } catch (error) {
+            console.error("Error during checkout:", error);
+            alert("Terjadi kesalahan jaringan.");
+        }
+    }
+    init();
+</script>
+</body>
+</html>
