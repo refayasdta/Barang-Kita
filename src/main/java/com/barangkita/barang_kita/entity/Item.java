@@ -16,6 +16,7 @@ public class Item {
     private double harga;
     private String deskripsi;
     private String gambar_item;
+    private String adminUsername;
 
     public Item() {}
 
@@ -49,4 +50,7 @@ public class Item {
         System.out.println("Description: " + deskripsi);
         return this;
     }
+
+    public String getAdminUsername() { return adminUsername; }
+    public void setAdminUsername(String adminUsername) { this.adminUsername = adminUsername; }
 }

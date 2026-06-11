@@ -5,7 +5,7 @@ import com.barangkita.barang_kita.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +41,7 @@ public class ItemController {
             @RequestParam("nama_item") @NotBlank(message = "Nama produk tidak boleh kosong") String namaItem,
             @RequestParam("harga") @Min(value = 0, message = "Harga tidak boleh negatif") Double harga,
             @RequestParam("deskripsi") String deskripsi,
+            @RequestParam(value = "adminUsername", required = false) String adminUsername, // <-- ADD THIS
             @RequestParam(value = "file", required = false) MultipartFile file) {
         
 
@@ -48,6 +49,7 @@ public class ItemController {
         item.setNama_item(namaItem);
         item.setHarga(harga);
         item.setDeskripsi(deskripsi);
+        item.setAdminUsername(adminUsername != null ? adminUsername : "Admin");
 
         // Image Saving Logic
         if (file != null && !file.isEmpty()) {

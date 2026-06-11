@@ -14,6 +14,9 @@
             font-family: 'Poppins', sans-serif;
             background-color: #EDE8D5;
             color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         /* ══════════════════════════════
@@ -40,11 +43,10 @@
         }
 
         .nav-logo img {
-        height: 38px;
-        object-fit: contain;
-        /* Restores the soft shadow behind the transparent PNG */
-        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
-    }
+            height: 38px;
+            object-fit: contain;
+            filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
+        }
 
         /* Fallback logo if image missing */
         .nav-logo-fallback {
@@ -196,11 +198,10 @@
         }
 
         .hero-image img {
-        height: 100%;
-        object-fit: contain;
-        /* Adds the shadow to the large icon so it pops against the blue background */
-        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
-    }
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
+        }
 
         /* Fallback hero figure */
         .hero-figure-fallback {
@@ -232,7 +233,7 @@
         .items-section {
             background: #EDE8D5;
             padding: 48px 60px;
-            min-height: 300px;
+            flex: 1; /* Pushes footer to bottom */
         }
 
         .items-section h2 {
@@ -369,76 +370,36 @@
         ══════════════════════════════ */
         footer {
             background: #F5F0E8;
-            padding: 52px 80px 0;
+            padding: 40px 40px 20px;
+            text-align: center;
             border-top: 1px solid #e0dbd0;
         }
 
-        .footer-top {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
+        .footer-links {
+            display: flex;
+            justify-content: center;
             gap: 40px;
-            padding-bottom: 48px;
+            margin-bottom: 24px;
         }
 
-        .footer-brand .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 14px;
+        .footer-links a {
             text-decoration: none;
-        }
-
-        .footer-brand .footer-logo img {
-        height: 32px;
-        object-fit: contain;
-        /* Restores the shadow here as well for consistency */
-        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.35));
-    }
-
-        .footer-logo-fallback {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .footer-logo-fallback .logo-icon { color: #F5A623; font-size: 18px; }
-        .footer-logo-fallback .logo-name { font-size: 18px; font-weight: 800; color: #1A5FCC; }
-
-        .footer-brand p {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.6;
-            max-width: 200px;
-        }
-
-        .footer-col h4 {
-            font-size: 14px;
-            font-weight: 800;
             color: #1A5FCC;
-            margin-bottom: 16px;
-        }
-
-        .footer-col ul { list-style: none; }
-
-        .footer-col ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-col ul li a {
-            font-size: 13px;
-            color: #555;
-            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
             transition: color 0.2s;
         }
 
-        .footer-col ul li a:hover { color: #1A5FCC; }
+        .footer-links a:hover {
+            color: #154fa8;
+        }
 
         .footer-bottom {
-            border-top: 1px solid #e0dbd0;
-            padding: 18px 0;
-            text-align: center;
+            border-top: 1px solid #dcd7c8;
+            padding-top: 20px;
             font-size: 13px;
             color: #888;
+            font-weight: 500;
         }
 
         /* ══════════════════════════════
@@ -452,7 +413,6 @@
             .items-grid { grid-template-columns: repeat(2, 1fr); }
             .hero-content h1 { font-size: 34px; }
             .hero-image, .hero-figure-fallback { right: 20px; height: 260px; }
-            .footer-top { grid-template-columns: 1fr 1fr; }
             .navbar { padding: 0 20px; }
             .nav-search { margin: 0 16px; }
         }
@@ -460,7 +420,6 @@
 </head>
 <body>
 
-<!-- ══ NAVBAR ══ -->
 <nav class="navbar">
     <a href="/home" class="nav-logo" id="navLogo">
         <img src="/assets/logo-barangkita-final.png" alt="BarangKita"
@@ -485,7 +444,6 @@
     </div>
 </nav>
 
-<!-- ══ HERO ══ -->
 <section class="hero">
     <div class="hero-content">
         <h1>Welcome to<br>barangkita</h1>
@@ -498,7 +456,6 @@
     </div>
 </section>
 
-<!-- ══ ITEMS SECTION ══ -->
 <section class="items-section">
     <div class="items-grid" id="itemsGrid">
         <div class="loading-state">
@@ -508,46 +465,10 @@
     </div>
 </section>
 
-<!-- ══ FOOTER ══ -->
 <footer>
-    <div class="footer-top">
-        <div class="footer-brand">
-            <a href="/home" class="footer-logo">
-                <img src="/assets/logo-barangkita-final.png" alt="BarangKita"
-                     onerror="this.parentElement.innerHTML='<div class=\'footer-logo-fallback\'><span class=\'logo-icon\'>🚶</span><span class=\'logo-name\'>barangkita</span></div>'">
-            </a>
-            <p>Platform belanja online terpercaya dengan ribuan produk berkualitas.</p>
-        </div>
-
-        <div class="footer-col">
-            <h4>Tentang Kami</h4>
-            <ul>
-                <li><a href="#">Tentang Barang Kita</a></li>
-                <li><a href="#">Karir</a></li>
-                <li><a href="#">Blog</a></li>
-                <li><a href="#">Hubungi Kami</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-col">
-            <h4>Bantuan</h4>
-            <ul>
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">Cara Belanja</a></li>
-                <li><a href="#">Pengiriman</a></li>
-                <li><a href="#">Pengembalian</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-col">
-            <h4>Ikuti Kami</h4>
-            <ul>
-                <li><a href="#">Facebook</a></li>
-                <li><a href="#">Instagram</a></li>
-                <li><a href="#">Twitter</a></li>
-                <li><a href="#">TikTok</a></li>
-            </ul>
-        </div>
+    <div class="footer-links">
+        <a href="#">Tentang Kami</a>
+        <a href="#">FAQ</a>
     </div>
 
     <div class="footer-bottom">
@@ -598,7 +519,7 @@
                 <a class="item-card" href="/item-detail?id=${item.id_item}">
                     <div class="item-card-image">
                         ${item.gambar_item
-                            ? `<img src="/assets/${item.gambar_item}" alt="${item.nama_item}"
+                            ? `<img src="/images/${item.gambar_item}" alt="${item.nama_item}"
                                     onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'>📦</div>'">`
                             : `<div class="img-placeholder">📦</div>`
                         }

@@ -560,8 +560,22 @@
     let allItems = [];
     let editingItemId = null;
     let deletingItemId = null;
+    let currentAdminUsername = 'Admin';
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
+
+    async function loadAdminData() {
+        try {
+            const token = localStorage.getItem('token');
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const res = await fetch(`/api/users/${payload.id_akun}`, { headers: { 'Authorization': 'Bearer ' + token } });
+            if (res.ok) {
+                const data = await res.json();
+                currentAdminUsername = data.username || 'Admin';
+            }
+        } catch(e) {}
+    }
+    loadAdminData(); // Call it immediately
 
     // ── Auth guard ──
     if (!token || role !== 'Admin') {
@@ -691,6 +705,7 @@
         formData.append('nama_item', nama);
         formData.append('harga', harga);
         formData.append('deskripsi', deskripsi);
+        formData.append('adminUsername', currentAdminUsername);
         
         // Append file if selected
         if (fileInput.files.length > 0) {

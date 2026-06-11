@@ -57,11 +57,13 @@
         /* ══ CONTENT ══ */
         .content {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px; /* Space between the two cards */
             padding: 40px 24px 60px;
         }
 
-        /* ══ EDIT CARD ══ */
+        /* ══ EDIT CARDS ══ */
         .edit-card {
             background: #ffffff;
             border-radius: 24px;
@@ -143,6 +145,10 @@
         /* Card body */
         .card-body {
             padding: 70px 40px 32px;
+        }
+
+        .card-body.no-banner {
+            padding-top: 32px;
         }
 
         /* Form fields */
@@ -233,11 +239,6 @@
         .btn-simpan:hover { background: #38c5c1; }
         .btn-simpan:disabled { background: #aaa; cursor: not-allowed; }
 
-        /* Loading */
-        .loading-state { text-align: center; padding: 60px; color: #aaa; }
-        .spinner { width:36px; height:36px; border:3px solid #e0dbd0; border-top-color:#1A5FCC; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         /* Toast */
         .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(80px); background:#1a1a1a; color:white; padding:12px 28px; border-radius:50px; font-size:14px; font-weight:600; z-index:999; opacity:0; transition:all 0.3s ease; pointer-events:none; }
         .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
@@ -245,17 +246,14 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
     <button class="back-btn" onclick="window.location.href='/profile'">← Kembali</button>
     <span class="nav-title">Edit Profil</span>
 </nav>
 
-<!-- CONTENT -->
 <div class="content">
+    
     <div class="edit-card">
-
-        <!-- Blue Banner + Avatar -->
         <div class="card-banner">
             <div class="avatar-wrapper">
                 <div class="avatar-inner" id="avatarPreview">
@@ -267,20 +265,18 @@
 
         <input type="file" id="avatarInput" accept="image/*" onchange="previewAvatar(event)">
 
-        <!-- Form -->
         <div class="card-body">
-
-            <div class="field-group">
-                <label class="field-label">Nama Lengkap</label>
-                <input type="text" class="field-input" id="field-nama" placeholder="Masukkan nama lengkap" />
+            <div class="field-group" id="group-nama">
+                <label class="field-label" id="label-nama">Nama Lengkap</label>
+                <input type="text" class="field-input" id="field-nama" placeholder="Masukkan data" />
             </div>
 
-            <div class="field-group">
+            <div class="field-group" id="group-telepon">
                 <label class="field-label">Nomor Telepon</label>
                 <input type="tel" class="field-input" id="field-telepon" placeholder="+62 xxx-xxxx-xxxx" />
             </div>
 
-            <div class="field-group">
+            <div class="field-group" id="group-alamat">
                 <label class="field-label">Alamat</label>
                 <textarea class="field-input" id="field-alamat" placeholder="Masukkan alamat lengkap..."></textarea>
             </div>
@@ -290,12 +286,39 @@
             <div class="action-buttons">
                 <button class="btn-batal" onclick="window.location.href='/profile'">Batal</button>
                 <button class="btn-simpan" id="saveBtn" onclick="saveProfile()">
-                    💾 Simpan
+                    💾 Simpan Profil
                 </button>
             </div>
-
         </div>
     </div>
+
+    <div class="edit-card">
+        <div class="card-body no-banner">
+            <h3 style="font-size: 18px; font-weight: 800; color: #1a1a1a; margin-bottom: 24px;">🔒 Ubah Password</h3>
+
+            <div class="field-group">
+                <label class="field-label">Password Lama</label>
+                <input type="password" class="field-input" id="oldPassword" placeholder="Masukkan password saat ini" />
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Password Baru</label>
+                <input type="password" class="field-input" id="newPassword" placeholder="Masukkan password baru" />
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Konfirmasi Password Baru</label>
+                <input type="password" class="field-input" id="confirmPassword" placeholder="Ulangi password baru" />
+            </div>
+
+            <div class="action-buttons" style="margin-top: 24px;">
+                <button class="btn-simpan" id="btnChangePassword" onclick="changePassword()" style="width: 100%;">
+                    🔑 Simpan Password Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -326,26 +349,42 @@
         reader.readAsDataURL(file);
     }
 
+    const role = localStorage.getItem('role'); // Get the role!
+
     // ── Load existing profile data ──
     async function loadProfile() {
         const userPayload = getUserFromToken(token);
         const userId = userPayload.id_akun || null;
         if (!userId) return;
 
+        // UI Shape-Shifting for Admins
+        if (role === 'Admin') {
+            document.querySelector('.card-banner').style.display = 'none'; // Hide blue banner
+            document.querySelector('.card-body').classList.add('no-banner');
+            document.getElementById('label-nama').textContent = 'Username';
+            document.getElementById('group-telepon').style.display = 'none'; // Hide Phone
+            document.getElementById('group-alamat').style.display = 'none';  // Hide Address
+        }
+
         try {
             const res = await fetch(`/api/users/${userId}`, {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
             if (res.ok) {
-                const user = await res.json();
-                document.getElementById('field-nama').value    = user.nama || '';
-                document.getElementById('field-telepon').value = user.no_telepon || '';
-                document.getElementById('field-alamat').value  = user.alamat || '';
+                const data = await res.json();
+                
+                if (role === 'Admin') {
+                    document.getElementById('field-nama').value = data.username || '';
+                } else {
+                    document.getElementById('field-nama').value    = data.nama || '';
+                    document.getElementById('field-telepon').value = data.no_telepon || '';
+                    document.getElementById('field-alamat').value  = data.alamat || '';
 
-                if (user.foto_profile) {
-                    document.getElementById('avatarPreview').innerHTML =
-                        `<img src="/images/${user.foto_profile}" alt="Avatar"
-                              onerror="this.parentElement.innerHTML='<span class=\'avatar-icon\'>👤</span>'">`;
+                    if (data.foto_profile) {
+                        document.getElementById('avatarPreview').innerHTML =
+                            `<img src="/images/${data.foto_profile}" alt="Avatar"
+                                  onerror="this.parentElement.innerHTML='<span class=\'avatar-icon\'>👤</span>'">`;
+                    }
                 }
             }
         } catch(e) {}
@@ -353,13 +392,14 @@
 
     // ── Save profile ──
     async function saveProfile() {
-        const nama     = document.getElementById('field-nama').value.trim();
-        const telepon  = document.getElementById('field-telepon').value.trim();
-        const alamat   = document.getElementById('field-alamat').value.trim();
-        const errorEl  = document.getElementById('errorMsg');
-        const saveBtn  = document.getElementById('saveBtn');
+        const fieldNama = document.getElementById('field-nama').value.trim();
+        const errorEl   = document.getElementById('errorMsg');
+        const saveBtn   = document.getElementById('saveBtn');
 
-        if (!nama) { errorEl.textContent = 'Nama lengkap wajib diisi!'; return; }
+        if (!fieldNama) { 
+            errorEl.textContent = role === 'Admin' ? 'Username wajib diisi!' : 'Nama lengkap wajib diisi!'; 
+            return; 
+        }
 
         errorEl.textContent = '';
         saveBtn.disabled = true;
@@ -368,18 +408,29 @@
         const userPayload = getUserFromToken(token);
         const userId = userPayload.id_akun || null;
 
+        const formData = new FormData();
+        
+        // Pack data based on Role
+        if (role === 'Admin') {
+            formData.append('username', fieldNama);
+        } else {
+            const telepon  = document.getElementById('field-telepon').value.trim();
+            const alamat   = document.getElementById('field-alamat').value.trim();
+            const fileInput = document.getElementById('avatarInput');
+
+            formData.append('nama', fieldNama);
+            formData.append('no_telepon', telepon);
+            formData.append('alamat', alamat);
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            }
+        }
+
         try {
             const res = await fetch(`/api/users/${userId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({
-                    nama: nama,
-                    no_telepon: telepon,
-                    alamat: alamat
-                })
+                headers: { 'Authorization': 'Bearer ' + token },
+                body: formData
             });
 
             if (res.ok) {
@@ -388,12 +439,70 @@
             } else {
                 errorEl.textContent = 'Gagal menyimpan profil.';
                 saveBtn.disabled = false;
-                saveBtn.innerHTML = '💾 Simpan';
+                saveBtn.innerHTML = '💾 Simpan Profil';
             }
         } catch(err) {
             errorEl.textContent = 'Koneksi gagal. Coba lagi.';
             saveBtn.disabled = false;
-            saveBtn.innerHTML = '💾 Simpan';
+            saveBtn.innerHTML = '💾 Simpan Profil';
+        }
+    }
+
+    // ── Change Password ──
+    async function changePassword() {
+        const oldPassword = document.getElementById('oldPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const btn = document.getElementById('btnChangePassword');
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            showToast('❌ Harap isi semua kolom password!');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showToast('❌ Password baru dan konfirmasi tidak cocok!');
+            return;
+        }
+
+        const userPayload = getUserFromToken(token);
+        const userId = userPayload.id_akun || null;
+        if (!userId) {
+            alert("Sesi tidak valid, silakan login ulang.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Menyimpan...';
+
+        try {
+            const res = await fetch(`/api/users/${userId}/password`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    oldPassword: oldPassword,
+                    newPassword: newPassword
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showToast('✅ Password berhasil diubah!');
+                document.getElementById('oldPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            } else {
+                showToast('❌ ' + (data.error || 'Gagal mengubah password.'));
+            }
+        } catch(err) {
+            showToast('❌ Koneksi gagal jaringan.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '🔑 Simpan Password Baru';
         }
     }
 
