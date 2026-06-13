@@ -51,4 +51,9 @@ public class ViewController {
     public String orderHistory() { 
         return "order-history"; 
     }
+
+    @GetMapping("/tentang-kami")
+    public String tentangKami() { 
+        return "tentang-kami"; 
+    }
 }

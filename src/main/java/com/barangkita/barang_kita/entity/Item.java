@@ -17,6 +17,7 @@ public class Item {
     private String deskripsi;
     private String gambar_item;
     private String adminUsername;
+    private Integer stok = 1;
 
     public Item() {}
 
@@ -53,4 +54,7 @@ public class Item {
 
     public String getAdminUsername() { return adminUsername; }
     public void setAdminUsername(String adminUsername) { this.adminUsername = adminUsername; }
+
+    public Integer getStok() { return stok; }
+    public void setStok(Integer stok) { this.stok = stok; }
 }

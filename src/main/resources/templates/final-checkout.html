@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script src="/js/auth-interceptor.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran - BarangKita</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            /* Beautiful gradient background covering the whole page */
+            background: linear-gradient(135deg, #1A5FCC 0%, #4DD9D5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .checkout-container {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+
+        .checkout-header {
+            margin-bottom: 8px;
+        }
+
+        .checkout-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .total-amount {
+            font-size: 46px;
+            font-weight: 800;
+            color: #1A5FCC;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .instruction-text {
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 40px;
+        }
+
+        .banks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* ── The Clickable Bank Cards ── */
+        .bank-card {
+            background: #ffffff;
+            border: 2px solid #f0edf4;
+            border-radius: 16px;
+            padding: 24px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .bank-card:hover {
+            border-color: #4DD9D5;
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(77, 217, 213, 0.15);
+        }
+
+        .bank-card:active {
+            transform: translateY(-2px);
+        }
+
+        .bank-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .account-name {
+            font-size: 13px;
+            color: #888;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .account-number {
+            background: #F4F4F6;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1A5FCC;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .bank-card:hover .account-number {
+            background: #E0F7FA;
+        }
+
+        .copy-icon {
+            font-size: 14px;
+            opacity: 0.6;
+        }
+
+        .btn-home {
+            padding: 16px 36px;
+            background: #f4f4f6;
+            color: #555;
+            border: none;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-home:hover {
+            background: #e0dbd0;
+            color: #333;
+        }
+
+        /* Toast Notification */
+        .toast { 
+            position: fixed; 
+            bottom: 40px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(80px); 
+            background: #1a1a1a; 
+            color: white; 
+            padding: 14px 32px; 
+            border-radius: 50px; 
+            font-size: 15px; 
+            font-weight: 600; 
+            z-index: 999; 
+            opacity: 0; 
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+            pointer-events: none; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .toast.show { 
+            opacity: 1; 
+            transform: translateX(-50%) translateY(0); 
+        }
+
+        /* Responsive Grid */
+        @media (max-width: 800px) {
+            .banks-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 500px) {
+            .banks-grid { grid-template-columns: 1fr; }
+            .total-amount { font-size: 38px; }
+            .checkout-container { padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="checkout-container">
+    
+    <div class="checkout-header">
+        <h1>Total Tagihan</h1>
+    </div>
+    
+    <div class="total-amount" id="displayTotal">Rp 0</div>
+    
+    <div class="instruction-text">
+        Silakan transfer sesuai dengan nominal di atas ke salah satu rekening di bawah ini.<br>
+        <strong>Klik kartu untuk menyalin nomor rekening.</strong>
+    </div>
+
+    <div class="banks-grid">
+        
+        <div class="bank-card" onclick="copyRekening('1234567890')">
+            <div class="bank-name">BCA</div>
+            <div class="account-name">a.n Andi Pratama</div>
+            <div class="account-number">
+                1234567890 <span class="copy-icon">📋</span>
+            </div>
+        </div>
+
+        <div class="bank-card" onclick="copyRekening('0987654321')">
+            <div class="bank-name">Mandiri</div>
+            <div class="account-name">a.n Siti Rahayu</div>
+            <div class="account-number">
+                0987654321 <span class="copy-icon">📋</span>
+            </div>
+        </div>
+
+        <div class="bank-card" onclick="copyRekening('1122334455')">
+            <div class="bank-name">BNI</div>
+            <div class="account-name">a.n Budi Santoso</div>
+            <div class="account-number">
+                1122334455 <span class="copy-icon">📋</span>
+            </div>
+        </div>
+
+        <div class="bank-card" onclick="copyRekening('5544332211')">
+            <div class="bank-name">BRI</div>
+            <div class="account-name">a.n Dewi Lestari</div>
+            <div class="account-number">
+                5544332211 <span class="copy-icon">📋</span>
+            </div>
+        </div>
+
+        <div class="bank-card" onclick="copyRekening('9988776655')">
+            <div class="bank-name">BSI</div>
+            <div class="account-name">a.n Rizky Firmansyah</div>
+            <div class="account-number">
+                9988776655 <span class="copy-icon">📋</span>
+            </div>
+        </div>
+
+        <div class="bank-card" onclick="copyRekening('5566778899')">
+            <div class="bank-name">CIMB Niaga</div>
+            <div class="account-name">a.n Nurul Hidayah</div>
+            <div class="account-number">
+                5566778899 <span class="copy-icon">📋</span>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="/home" class="btn-home">← Kembali ke Beranda</a>
+
+</div>
+
+<div class="toast" id="toast">✅ Nomor rekening berhasil disalin!</div>
+
+<script>
+    // ── Authentication Check ──
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+
+    // ── Format Currency ──
+    function formatRupiah(amount) {
+        return 'Rp ' + Number(amount).toLocaleString('id-ID');
+    }
+
+    // ── Get Total Amount from URL (e.g. final-checkout?total=150000) ──
+    function loadTotalTagihan() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const total = urlParams.get('total');
+        
+        if (total) {
+            document.getElementById('displayTotal').textContent = formatRupiah(total);
+        } else {
+            // Fallback if no URL parameter is found
+            document.getElementById('displayTotal').textContent = "Rp -";
+        }
+    }
+
+    // ── Copy to Clipboard Logic ──
+    function copyRekening(nomor) {
+        // Modern Clipboard API
+        navigator.clipboard.writeText(nomor).then(() => {
+            showToast();
+        }).catch(err => {
+            console.error('Gagal menyalin:', err);
+            alert("Gagal menyalin nomor rekening.");
+        });
+    }
+
+    // ── Toast Notification ──
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2500); // Hides after 2.5 seconds
+    }
+
+    // Run on page load
+    loadTotalTagihan();
+
+</script>
+</body>
+</html>

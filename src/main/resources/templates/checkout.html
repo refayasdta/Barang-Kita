@@ -82,21 +82,10 @@
         .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(80px); background:#1a1a1a; color:white; padding:12px 28px; border-radius:50px; font-size:14px; font-weight:600; z-index:999; opacity:0; transition:all 0.3s ease; pointer-events:none; }
         .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-        /* SUCCESS */
-        .success-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; display:none; align-items:center; justify-content:center; }
-        .success-overlay.show { display:flex; }
-        .success-card { background:white; border-radius:20px; padding:48px 40px; text-align:center; max-width:380px; width:90%; animation:popIn 0.3s ease; }
-        @keyframes popIn { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
-        .success-icon { font-size:56px; margin-bottom:16px; }
-        .success-title { font-size:20px; font-weight:800; margin-bottom:8px; color:#1a1a1a; }
-        .success-msg { font-size:13px; color:#888; margin-bottom:28px; }
-        .btn-ok { padding:13px 40px; background:#4DD9D5; color:white; border:none; border-radius:50px; font-size:14px; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; }
-        .btn-ok:hover { background:#38c5c1; }
     </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
     <a href="/home" class="nav-logo">
         <img src="/assets/logo-barangkita-final.png" alt="BarangKita"
@@ -117,21 +106,10 @@
     </div>
 </nav>
 
-<!-- CHECKOUT CONTENT -->
 <div class="checkout-content" id="checkoutContent">
     <div class="loading-state">
         <div class="spinner"></div>
         <div>Memuat data checkout...</div>
-    </div>
-</div>
-
-<!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="successOverlay">
-    <div class="success-card">
-        <div class="success-icon">✅</div>
-        <div class="success-title">Pesanan Berhasil!</div>
-        <div class="success-msg">Pesananmu telah diterima dan sedang menunggu konfirmasi dari admin.</div>
-        <button class="btn-ok" onclick="window.location.href='/order-history'">Lihat Pesanan</button>
     </div>
 </div>
 
@@ -314,74 +292,15 @@
             ));
 
             localStorage.removeItem('checkoutIds');
-            document.getElementById('successOverlay').classList.add('show');
+            
+            // ✅ REDIRECT TO THE NEW PAYMENT PAGE
+            window.location.href = `/final-checkout?total=${totalPembayaran}`;
 
         } catch(err) {
             showToast('❌ Gagal memproses pesanan. Coba lagi.');
         }
     }
 
-    // Add this inside the <script> tag of your checkout.html
-
-    async function processCheckout() {
-        const token = localStorage.getItem('token');
-        
-        // 1. Get the payload data from your parsed JWT
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const userId = payload.id_akun;
-
-        // 2. Assuming you stored the selected cart items in a variable or localStorage
-        // (You will need to adapt this to how your checkout.html currently holds the items)
-        const checkoutItems = JSON.parse(localStorage.getItem('checkoutItems')) || [];
-        let totalPembayaran = 25000; // Start with Ongkos Kirim (Rp 25.000)
-
-        // 3. Format the orderItems exactly how Spring Boot expects them
-        const orderItemsPayload = checkoutItems.map(item => {
-            const subtotal = item.jumlah * item.harga;
-            totalPembayaran += subtotal;
-            return {
-                id_item: item.id_item,
-                nama_item: item.nama_item,
-                jumlah: item.jumlah,
-                harga: item.harga,
-                subtotal: subtotal
-            };
-        });
-
-        // 4. Build the final Order object
-        const orderData = {
-            id_user: userId,
-            total_pembayaran: totalPembayaran,
-            status: "PENDING", // Default status
-            orderItems: orderItemsPayload
-        };
-
-        try {
-            // 5. Send to Spring Boot
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify(orderData)
-            });
-
-            if (response.ok) {
-                alert("Pesanan berhasil dibuat!");
-                
-                // OPTIONAL: Call your DELETE /api/carts endpoint here to empty the user's cart
-                
-                // 6. REDIRECT DIRECTLY TO ORDER HISTORY
-                window.location.href = '/order-history';
-            } else {
-                alert("Gagal memproses checkout. Silakan coba lagi.");
-            }
-        } catch (error) {
-            console.error("Error during checkout:", error);
-            alert("Terjadi kesalahan jaringan.");
-        }
-    }
     init();
 </script>
 </body>

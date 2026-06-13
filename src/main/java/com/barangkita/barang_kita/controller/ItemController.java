@@ -41,7 +41,8 @@ public class ItemController {
             @RequestParam("nama_item") @NotBlank(message = "Nama produk tidak boleh kosong") String namaItem,
             @RequestParam("harga") @Min(value = 0, message = "Harga tidak boleh negatif") Double harga,
             @RequestParam("deskripsi") String deskripsi,
-            @RequestParam(value = "adminUsername", required = false) String adminUsername, // <-- ADD THIS
+            @RequestParam(value = "adminUsername", required = false) String adminUsername,
+            @RequestParam(value = "stok", defaultValue = "1") Integer stok,
             @RequestParam(value = "file", required = false) MultipartFile file) {
         
 
@@ -50,6 +51,7 @@ public class ItemController {
         item.setHarga(harga);
         item.setDeskripsi(deskripsi);
         item.setAdminUsername(adminUsername != null ? adminUsername : "Admin");
+        item.setStok(stok);
 
         // Image Saving Logic
         if (file != null && !file.isEmpty()) {

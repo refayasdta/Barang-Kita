@@ -29,7 +29,7 @@ public class SecurityConfig {
                 
                 .requestMatchers("/images/**", "/assets/**", "/favicon.ico").permitAll()
 
-                .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/checkout", "/profile", "/edit-profile", "/order-history").permitAll()
+                .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/checkout", "/profile", "/edit-profile", "/order-history","/tentang-kami").permitAll()
                 .requestMatchers("/admin-dashboard", "/admin-orders").permitAll()
 
                 .requestMatchers("/api/auth/**").permitAll()

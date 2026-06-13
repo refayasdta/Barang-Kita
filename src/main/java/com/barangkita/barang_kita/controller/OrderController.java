@@ -1,7 +1,9 @@
 package com.barangkita.barang_kita.controller;
 
+import com.barangkita.barang_kita.entity.Item; // <-- NEW
 import com.barangkita.barang_kita.entity.Order;
 import com.barangkita.barang_kita.entity.OrderItem;
+import com.barangkita.barang_kita.service.ItemService; // <-- NEW
 import com.barangkita.barang_kita.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,9 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private ItemService itemService; // <-- NEW: Allows us to edit item stock
 
     // User - get their own orders
     @GetMapping("/user/{id_user}")
@@ -36,6 +41,22 @@ public class OrderController {
                 if (item.getSubtotal() == 0) {
                     item.setSubtotal(item.getHarga() * item.getJumlah());
                 }
+
+                // ═══ NEW: INVENTORY DEDUCTION LOGIC ═══
+                // 1. Find the physical item in the database
+                Item dbItem = itemService.getItemById(item.getId_item());
+                if (dbItem != null) {
+                    // 2. Get current stock (default to 1 if null)
+                    int currentStock = dbItem.getStok() != null ? dbItem.getStok() : 1;
+                    int purchasedQty = item.getJumlah();
+                    
+                    // 3. Deduct stock (Math.max prevents it from dropping below 0)
+                    dbItem.setStok(Math.max(0, currentStock - purchasedQty));
+                    
+                    // 4. Save the updated stock back to the database
+                    itemService.saveItem(dbItem);
+                }
+                // ══════════════════════════════════════
             }
         }
 

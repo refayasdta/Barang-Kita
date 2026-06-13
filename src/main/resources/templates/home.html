@@ -467,8 +467,7 @@
 
 <footer>
     <div class="footer-links">
-        <a href="#">Tentang Kami</a>
-        <a href="#">FAQ</a>
+        <a href="/tentang-kami">Tentang Kami</a>
     </div>
 
     <div class="footer-bottom">
@@ -508,7 +507,9 @@
                 : '/api/items';
 
             const res = await fetch(url);
-            const items = await res.json();
+            let items = await res.json();
+
+            items = items.filter(item => item.stok === null || item.stok > 0);
 
             if (!items || items.length === 0) {
                 grid.innerHTML = `<div class="empty-state">No items yet :(</div>`;
