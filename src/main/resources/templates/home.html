@@ -519,7 +519,7 @@
                 <a class="item-card" href="/item-detail?id=${item.id_item}">
                     <div class="item-card-image">
                         ${item.gambar_item
-                            ? `<img src="/images/${item.gambar_item}" alt="${item.nama_item}"
+                            ? `<img src="${item.gambar_item}" alt="${item.nama_item}"
                                     onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'>📦</div>'">`
                             : `<div class="img-placeholder">📦</div>`
                         }

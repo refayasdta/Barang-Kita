@@ -17,7 +17,6 @@ public class Order {
 
     private int id_user;
 
-    @Temporal(TemporalType.TIMESTAMP)
     private Date tanggal_order;
 
     private double total_pembayaran;

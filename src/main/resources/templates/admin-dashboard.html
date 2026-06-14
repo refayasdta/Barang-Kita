@@ -187,6 +187,7 @@
             line-height: 1.5;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -609,7 +610,7 @@
                     <!-- Thumbnail -->
                     <div class="item-thumb">
                         ${item.gambar_item
-                            ? `<img src="/images/${item.gambar_item}" alt="${item.nama_item}"
+                            ? `<img src="${item.gambar_item}" alt="${item.nama_item}"
                                     onerror="this.parentElement.innerHTML='<div class=\'thumb-placeholder\'>📦</div>'">`
                             : `<div class="thumb-placeholder">📦</div>`
                         }
