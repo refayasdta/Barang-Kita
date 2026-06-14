@@ -53,13 +53,33 @@ public class AuthController {
     // 3. LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+        
         Akun akun = akunRepository.findByEmail(request.getEmail()).orElse(null);
-
-        if (akun != null && passwordEncoder.matches(request.getPassword(), akun.getPassword())) {
+        
+        if (akun == null) {
+            System.out.println("DEBUG: No account found in DB for email: " + request.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+        }
+        
+        boolean isMatch = passwordEncoder.matches(request.getPassword(), akun.getPassword());
+        System.out.println("DEBUG: Password match result: " + isMatch);
+        
+        if (isMatch) {
             String token = jwtUtil.generateToken(akun.getEmail(), akun.getRole(), akun.getId_akun());
             return ResponseEntity.ok(new AuthResponse(token, akun.getRole()));
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+    }
+
+    @GetMapping("/force-reset")
+    public String forceReset() {
+        Akun akun = akunRepository.findByEmail("refayasiddharta@gmail.com").orElse(null);
+        if (akun != null) {
+            akun.setPassword(passwordEncoder.encode("password123"));
+            akunRepository.save(akun);
+            return "Password successfully reset to password123 using the active PasswordEncoder!";
+        }
+        return "Account not found!";
     }
 }

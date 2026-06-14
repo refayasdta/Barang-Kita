@@ -25,14 +25,24 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. Look for the "Authorization" header in the incoming request
+        // Log the request to confirm it is hitting the filter
+        
+
+        String path = request.getRequestURI();
+
+        // 1. BYPASS: If the path is for auth, stop the filter here and let it pass through
+        if (path.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return; 
+        }
+
+        // 2. Look for the "Authorization" header
         final String authHeader = request.getHeader("Authorization");
         String email = null;
         String jwt = null;
 
-        // 2. Check if the header exists and starts with "Bearer "
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7); // Remove "Bearer " to get just the token
+            jwt = authHeader.substring(7);
             try {
                 email = jwtUtil.extractEmail(jwt);
             } catch (Exception e) {
@@ -40,14 +50,12 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        // 3. If we found an email and the user isn't already logged in to the Spring context
+        // 3. If a valid token is found, set the Security Context
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             
             if (jwtUtil.validateToken(jwt, email)) {
-                // Extract the role from the token
                 String role = jwtUtil.extractRole(jwt);
                 
-                // Tell Spring Security: "This user is valid and here is their role"
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
                 
@@ -56,7 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         
-        // 4. Pass the request along to the next step
+        // 4. Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

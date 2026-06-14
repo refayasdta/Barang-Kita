@@ -23,19 +23,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.disable()) 
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // 1. PUBLIC ASSETS (JS, Images, etc. so the browser doesn't get 403s)
+                .requestMatchers("/js/**", "/images/**", "/assets/**", "/favicon.ico").permitAll()
                 
-                .requestMatchers("/images/**", "/assets/**", "/favicon.ico").permitAll()
-
-                .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/checkout", "/profile", "/edit-profile", "/order-history","/tentang-kami","/final-checkout").permitAll()
-                .requestMatchers("/admin-dashboard", "/admin-orders").permitAll()
-
+                // 2. AUTHENTICATION ENDPOINTS
                 .requestMatchers("/api/auth/**").permitAll()
                 
+                // 3. PUBLIC PAGES
+                .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/checkout", 
+                                 "/profile", "/edit-profile", "/order-history", "/tentang-kami", 
+                                 "/final-checkout", "/admin-dashboard", "/admin-orders").permitAll()
+                
+                // 4. ITEMS (Public GET)
                 .requestMatchers(HttpMethod.GET, "/api/items/**").permitAll()
-
+                
+                // 5. RESTRICTED ENDPOINTS
                 .requestMatchers(HttpMethod.POST, "/api/items/**").hasAuthority("Admin")
                 .requestMatchers(HttpMethod.PUT, "/api/items/**").hasAuthority("Admin")
                 .requestMatchers(HttpMethod.DELETE, "/api/items/**").hasAuthority("Admin")
@@ -47,11 +53,9 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.GET, "/api/orders/user/**").hasAuthority("User")
                 .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAuthority("User")
-
                 .requestMatchers(HttpMethod.GET, "/api/orders/all").hasAuthority("Admin")
                 .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasAuthority("Admin")
                 .requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyAuthority("Admin", "User")
-
 
                 .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyAuthority("User", "Admin")
                 .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAnyAuthority("User", "Admin")
