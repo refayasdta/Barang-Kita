@@ -56,4 +56,9 @@ public class ViewController {
     public String tentangKami() { 
         return "tentang-kami"; 
     }
+
+    @GetMapping("/final-checkout")
+    public String finalCheckout() { 
+        return "final-checkout"; 
+    }
 }

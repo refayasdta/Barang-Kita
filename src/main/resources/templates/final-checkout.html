@@ -19,6 +19,28 @@
             justify-content: center;
             padding: 40px 20px;
         }
+        
+        /* ══════════════════════════════
+           UNIVERSAL NAVBAR CSS
+        ══════════════════════════════ */
+        .navbar { background: #ffffff; padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .nav-logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+        .nav-logo img { height: 38px; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.35)); }
+        .nav-logo-fallback { display: flex; align-items: center; gap: 4px; }
+        .nav-logo-fallback .logo-icon { color: #F5A623; font-size: 22px; }
+        .nav-logo-fallback .logo-name { font-size: 22px; font-weight: 800; color: #1A5FCC; }
+        .nav-search { flex: 1; max-width: 580px; margin: 0 40px; position: relative; }
+        .nav-search input { width: 100%; padding: 10px 44px 10px 20px; border: 1.5px solid #e0dbd0; border-radius: 50px; font-size: 14px; font-family: 'Poppins', sans-serif; background: #fff; color: #333; outline: none; transition: border-color 0.2s; }
+        .nav-search input:focus { border-color: #1A5FCC; }
+        .nav-search input::placeholder { color: #aaa; }
+        .nav-search .search-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #888; font-size: 16px; cursor: pointer; }
+        .nav-icons { display: flex; align-items: center; gap: 20px; }
+        .nav-icon-btn { background: none; border: none; cursor: pointer; position: relative; color: #444; font-size: 22px; display: flex; align-items: center; transition: color 0.2s; }
+        .nav-icon-btn:hover { color: #1A5FCC; }
+        .cart-badge { position: absolute; top: -6px; right: -8px; background: #F5A623; color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .btn-admin-panel { display: none; align-items: center; gap: 6px; padding: 8px 18px; background: #1A5FCC; color: white; border: none; border-radius: 50px; font-size: 13px; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; transition: background 0.2s; }
+        .btn-admin-panel:hover { background: #154fa8; }
+        @media (max-width: 768px) { .navbar { padding: 0 20px; } .nav-search { margin: 0 16px; } }
 
         .checkout-container {
             background: #ffffff;
@@ -177,6 +199,31 @@
     </style>
 </head>
 <body>
+
+    <nav class="navbar">
+    <a href="/home" class="nav-logo" id="navLogo">
+        <img src="/assets/logo-barangkita-final.png" alt="BarangKita"
+             onerror="this.parentElement.innerHTML='<div class=\'nav-logo-fallback\'><span class=\'logo-icon\'>🚶</span><span class=\'logo-name\'>barangkita</span></div>'">
+    </a>
+
+    <div class="nav-search">
+        <input type="text" id="searchInput" placeholder="Cari produk..."
+               onkeydown="if(event.key==='Enter') window.location.href='/home?search='+this.value"/>
+        <span class="search-icon"
+              onclick="window.location.href='/home?search='+document.getElementById('searchInput').value">🔍</span>
+    </div>
+
+    <div class="nav-icons">
+        <button class="nav-icon-btn" onclick="window.location.href='/profile'" title="Profile">👤</button>
+        <button class="btn-admin-panel" id="adminPanelBtn" onclick="window.location.href='/admin-dashboard'">
+            ⚙ Admin Panel
+        </button>
+        <button class="nav-icon-btn" onclick="window.location.href='/cart'" title="Keranjang">
+            🛒
+            <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+        </button>
+    </div>
+</nav>
 
 <div class="checkout-container">
     

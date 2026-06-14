@@ -432,7 +432,6 @@
     </div>
 
     <div class="nav-icons">
-        <button class="nav-icon-btn" title="Wishlist">♡</button>
         <button class="nav-icon-btn" onclick="window.location.href='/profile'" title="Profile">👤</button>
         <button class="btn-admin-panel" id="adminPanelBtn" onclick="window.location.href='/admin-dashboard'">
             ⚙ Admin Panel
@@ -596,7 +595,20 @@
 
     // ── Init ──
     checkAuth();
-    loadItems();
+    
+    // Check if the user arrived here from a cross-page search
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialSearch = urlParams.get('search');
+    
+    if (initialSearch) {
+        // Fill the search bar and immediately load the filtered items
+        document.getElementById('searchInput').value = initialSearch;
+        loadItems(initialSearch);
+    } else {
+        // Normal load
+        loadItems();
+    }
+    
     updateCartBadge();
 
 </script>
