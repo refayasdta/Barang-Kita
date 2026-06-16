@@ -14,8 +14,12 @@ public class Item {
 
     private String nama_item;
     private double harga;
+    @Column(columnDefinition = "TEXT")
     private String deskripsi;
+    
+    @Column(columnDefinition = "TEXT")
     private String gambar_item;
+
     private String adminUsername;
     private Integer stok = 1;
 

@@ -15,15 +15,13 @@
             background: linear-gradient(135deg, #1A5FCC 0%, #4DD9D5 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
+            flex-direction: column; /* Force vertical stacking */
         }
         
         /* ══════════════════════════════
            UNIVERSAL NAVBAR CSS
         ══════════════════════════════ */
-        .navbar { background: #ffffff; padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .navbar { background: #ffffff; padding: 0 40px; height: 64px; width: 100%; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
         .nav-logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
         .nav-logo img { height: 38px; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.35)); }
         .nav-logo-fallback { display: flex; align-items: center; gap: 4px; }
@@ -47,7 +45,8 @@
             border-radius: 24px;
             padding: 48px 40px;
             max-width: 900px;
-            width: 100%;
+            width: 90%;
+            margin: 60px auto; /* Centers the box and adds spacing from navbar */
             text-align: center;
             box-shadow: 0 12px 40px rgba(0,0,0,0.2);
         }
@@ -194,7 +193,7 @@
         @media (max-width: 500px) {
             .banks-grid { grid-template-columns: 1fr; }
             .total-amount { font-size: 38px; }
-            .checkout-container { padding: 40px 24px; }
+            .checkout-container { padding: 40px 24px; margin: 30px auto; width: 95%;}
         }
     </style>
 </head>
@@ -300,6 +299,13 @@
     // ── Authentication Check ──
     const token = localStorage.getItem('token');
     if (!token) window.location.href = '/login';
+
+    // ── Check Admin Role for Navbar ──
+    const role = localStorage.getItem('role');
+    if (role === 'Admin') {
+        const btn = document.getElementById('adminPanelBtn');
+        if (btn) btn.style.display = 'flex';
+    }
 
     // ── Format Currency ──
     function formatRupiah(amount) {
