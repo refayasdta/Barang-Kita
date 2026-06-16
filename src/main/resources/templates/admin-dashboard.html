@@ -592,7 +592,7 @@
     // ── Load Items ──
     async function loadItems() {
         try {
-            const res = await fetch('/api/items');
+            const res = await fetch('/api/items', { headers: authHeaders() });
             allItems = await res.json();
 
             const countEl = document.getElementById('itemCount');

@@ -505,7 +505,16 @@
                 ? `/api/items/search?keyword=${encodeURIComponent(keyword)}`
                 : '/api/items';
 
-            const res = await fetch(url);
+            // GRAB THE TOKEN FROM STORAGE
+            const token = localStorage.getItem('token');
+
+            // ATTACH IT TO THE FETCH REQUEST
+            const res = await fetch(url, {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+            
             let items = await res.json();
 
             items = items.filter(item => item.stok === null || item.stok > 0);

@@ -372,6 +372,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
+    const token = localStorage.getItem('token');
     let currentItemId = null;
 
     // ── Helpers ──
@@ -434,7 +435,9 @@
     // ── Load item detail ──
     async function loadDetail(id) {
         try {
-            const res = await fetch(`/api/items/${id}`);
+            const res = await fetch(`/api/items/${id}`, {
+                headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
+            });
             if (!res.ok) throw new Error('Not found');
             const item = await res.json();
             renderDetail(item);
@@ -448,7 +451,9 @@
     async function loadOtherItems(currentId) {
         const grid = document.getElementById('otherGrid');
         try {
-            const res = await fetch('/api/items');
+            const res = await fetch('/api/items', {
+                headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
+            });
             const allItems = await res.json();
 
             // Filter out current item

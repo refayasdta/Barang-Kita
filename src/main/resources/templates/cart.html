@@ -486,7 +486,9 @@
             // Fetch item details for each cart item
             await Promise.all(cartItems.map(async (c) => {
                 if (!itemDetails[c.id_item]) {
-                    const r = await fetch(`/api/items/${c.id_item}`);
+                    const r = await fetch(`/api/items/${c.id_item}`, {
+                        headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
+                    });
                     if (r.ok) itemDetails[c.id_item] = await r.json();
                 }
             }));
