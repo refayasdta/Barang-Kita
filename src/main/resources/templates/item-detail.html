@@ -350,7 +350,6 @@
     </div>
 </nav>
 
-<!-- ══ DETAIL SECTION ══ -->
 <div class="detail-section" id="detailSection">
     <div class="loading-state" style="grid-column:1/-1;">
         <div class="spinner"></div>
@@ -358,7 +357,6 @@
     </div>
 </div>
 
-<!-- ══ PRODUK LAIN ══ -->
 <div class="other-section">
     <h2>Produk Lain</h2>
     <div class="other-grid" id="otherGrid">
@@ -368,7 +366,6 @@
     </div>
 </div>
 
-<!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -403,7 +400,6 @@
     function renderDetail(item) {
         const section = document.getElementById('detailSection');
         section.innerHTML = `
-            <!-- LEFT: Image -->
             <div class="image-card">
                 <div class="image-inner">
                     ${item.gambar_item
@@ -414,7 +410,6 @@
                 </div>
             </div>
 
-            <!-- RIGHT: Info -->
             <div class="detail-info">
                 <div class="detail-name">${item.nama_item}</div>
                 <div class="detail-price">${formatRupiah(item.harga)}</div>
@@ -436,10 +431,17 @@
     async function loadDetail(id) {
         try {
             const res = await fetch(`/api/items/${id}`, {
-                headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
+                headers: { 'Authorization': 'Bearer ' + token }
             });
             if (!res.ok) throw new Error('Not found');
             const item = await res.json();
+            
+            // Check stock and redirect if sold out
+            if (item.stok < 1) {
+                window.location.href = '/home';
+                return;
+            }
+
             renderDetail(item);
         } catch (err) {
             document.getElementById('detailSection').innerHTML =
@@ -447,17 +449,17 @@
         }
     }
 
-    // ── Load other items (random, max 4, exclude current) ──
+    // ── Load other items (random, max 4, exclude current & sold out) ──
     async function loadOtherItems(currentId) {
         const grid = document.getElementById('otherGrid');
         try {   
             const res = await fetch('/api/items', {
-                headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
+                headers: { 'Authorization': 'Bearer ' + token }
             });
             const allItems = await res.json();
 
-            // Filter out current item
-            const others = allItems.filter(i => i.id_item !== currentId);
+            // Filter out current item AND items that are out of stock
+            const others = allItems.filter(i => i.id_item !== currentId && i.stok > 0);
 
             // Shuffle and take max 4
             const shuffled = others.sort(() => Math.random() - 0.5).slice(0, 4);
@@ -528,7 +530,6 @@
 
             if (res.ok) {
                 showToast('✅ Produk ditambahkan ke keranjang!');
-                // Optional: Update cart badge if you have one
             } else {
                 showToast('❌ Gagal menambahkan ke keranjang.');
             }

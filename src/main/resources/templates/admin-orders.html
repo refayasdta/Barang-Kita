@@ -79,15 +79,13 @@
         }
 
         .order-field { display: flex; flex-direction: column; gap: 3px; }
-
-        .field-label { font-size: 11px; color: #aaa; font-weight: 500; }
-
+        .field-label { font-size: 11px; color: #aaa; font-weight: 500; text-transform: uppercase; }
         .field-value { font-size: 14px; font-weight: 700; color: #1a1a1a; }
-
         .field-value.blue { color: #1A5FCC; font-size: 15px; }
+        .field-address { font-size: 12px; color: #666; font-weight: 400; margin-top: 2px; }
 
-        .col-id    { min-width: 110px; }
-        .col-email { min-width: 180px; flex: 1; }
+        .col-id    { min-width: 90px; }
+        .col-user  { min-width: 220px; flex: 1; }
         .col-produk { min-width: 180px; flex: 1; }
         .col-tanggal { min-width: 120px; }
         .col-total { min-width: 130px; }
@@ -104,64 +102,22 @@
             cursor: pointer;
             outline: none;
             appearance: none;
-            -webkit-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 12px center;
             padding-right: 32px;
-            transition: opacity 0.2s;
         }
 
-        .status-select:hover { opacity: 0.85; }
         .status-select.confirmed { background-color: #E8F8F0; color: #27ae60; }
         .status-select.pending   { background-color: #FEF9E7; color: #F39C12; }
         .status-select.cancelled { background-color: #FDEDEC; color: #e74c3c; }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #aaa;
-            font-size: 16px;
-            font-weight: 600;
-            background: white;
-            border-radius: 16px;
-        }
-
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid #e0dbd0;
-            border-top-color: #1A5FCC;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 12px;
-        }
-
+        .empty-state { text-align: center; padding: 60px; color: #aaa; font-size: 16px; font-weight: 600; background: white; border-radius: 16px; }
+        .spinner { width: 36px; height: 36px; border: 3px solid #e0dbd0; border-top-color: #1A5FCC; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: #1a1a1a;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 999;
-            opacity: 0;
-            transition: all 0.3s ease;
-            pointer-events: none;
-        }
-
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1a1a; color: white; padding: 12px 28px; border-radius: 50px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: all 0.3s ease; pointer-events: none; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        @media (max-width: 900px) {
-            .order-card { flex-wrap: wrap; gap: 16px; }
-            .col-produk, .col-email { min-width: 140px; }
-        }
     </style>
 </head>
 <body>
@@ -214,143 +170,93 @@
     if (!token || role !== 'Admin') window.location.href = '/login';
 
     function formatRupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
-
-    function formatDate(dateStr) {
-        if (!dateStr) return '-';
-        return new Date(dateStr).toISOString().split('T')[0];
-    }
-
+    function formatDate(d) { return d ? new Date(d).toISOString().split('T')[0] : '-'; }
     function formatOrderId(id) { return 'ORD-' + String(id).padStart(3, '0'); }
-
-    function showToast(msg, duration = 2500) {
+    function showToast(msg) {
         const t = document.getElementById('toast');
         t.textContent = msg; t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), duration);
+        setTimeout(() => t.classList.remove('show'), 2500);
     }
-
-    function authHeaders() {
-        return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
-    }
-
-    function getStatusClass(status) {
-        if (!status) return 'pending';
-        const s = status.toLowerCase();
-        if (s === 'confirmed') return 'confirmed';
-        if (s === 'cancelled') return 'cancelled';
-        return 'pending';
-    }
-
-    // ── Get product names from orderItems ──
-    function getProductNames(order) {
-        if (order.orderItems && order.orderItems.length > 0) {
-            return order.orderItems.map(i => i.nama_item || `Item #${i.id_item}`).join(', ');
-        }
-        return '-';
+    function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }; }
+    function getStatusClass(s) {
+        if (!s) return 'pending';
+        s = s.toLowerCase();
+        return s === 'confirmed' ? 'confirmed' : s === 'cancelled' ? 'cancelled' : 'pending';
     }
 
     async function loadOrders() {
         try {
             const res = await fetch('/api/orders/all', { headers: authHeaders() });
             const orders = await res.json();
-
             document.getElementById('orderCount').textContent = `${orders.length} total pesanan`;
 
-            const list = document.getElementById('ordersList');
-
-            if (orders.length === 0) {
-                list.innerHTML = `<div class="empty-state">Belum ada pesanan masuk.</div>`;
-                return;
-            }
-
-            // Fetch user emails
-            const userEmails = {};
+            // Fetch user data
+            const userInfo = {};
             await Promise.all(orders.map(async (o) => {
-                if (o.id_user && !userEmails[o.id_user]) {
+                if (o.id_user && !userInfo[o.id_user]) {
                     try {
                         const r = await fetch(`/api/users/${o.id_user}`, { headers: authHeaders() });
                         if (r.ok) {
                             const user = await r.json();
-                            userEmails[o.id_user] = user.email || `User #${o.id_user}`;
-                        } else {
-                            userEmails[o.id_user] = `User #${o.id_user}`;
+                            userInfo[o.id_user] = { email: user.email, alamat: user.alamat || '-' };
                         }
-                    } catch { userEmails[o.id_user] = `User #${o.id_user}`; }
+                    } catch { userInfo[o.id_user] = { email: `User #${o.id_user}`, alamat: '-' }; }
                 }
             }));
 
+            const list = document.getElementById('ordersList');
+            if (orders.length === 0) { list.innerHTML = `<div class="empty-state">Belum ada pesanan.</div>`; return; }
+
             list.innerHTML = orders.map(order => {
-                const statusClass = getStatusClass(order.status);
-                const email = userEmails[order.id_user] || `User #${order.id_user}`;
-                const productNames = getProductNames(order);
-
+                const user = userInfo[order.id_user] || { email: 'Loading...', alamat: '-' };
+                const products = order.orderItems?.map(i => i.nama_item).join(', ') || '-';
+                
                 return `
-                <div class="order-card" id="order-${order.id_order}">
+                <div class="order-card">
                     <div class="order-icon">📦</div>
-
                     <div class="order-field col-id">
-                        <span class="field-label">Order ID</span>
+                        <span class="field-label">ID</span>
                         <span class="field-value">${formatOrderId(order.id_order)}</span>
                     </div>
-
-                    <div class="order-field col-email">
+                    <div class="order-field col-user">
                         <span class="field-label">Pelanggan</span>
-                        <span class="field-value">${email}</span>
+                        <span class="field-value">${user.email}</span>
+                        <span class="field-address">📍 ${user.alamat}</span>
                     </div>
-
                     <div class="order-field col-produk">
                         <span class="field-label">Produk</span>
-                        <span class="field-value">${productNames}</span>
+                        <span class="field-value">${products}</span>
                     </div>
-
                     <div class="order-field col-tanggal">
                         <span class="field-label">Tanggal</span>
                         <span class="field-value">${formatDate(order.tanggal_order)}</span>
                     </div>
-
                     <div class="order-field col-total">
                         <span class="field-label">Total</span>
                         <span class="field-value blue">${formatRupiah(order.total_pembayaran)}</span>
                     </div>
-
                     <div class="order-field col-status">
-                        <span class="field-label">Status Pembayaran</span>
-                        <select class="status-select ${statusClass}"
-                                id="status-${order.id_order}"
-                                onchange="updateStatus(${order.id_order}, this)">
-                            <option value="PENDING"   ${(!order.status || order.status === 'PENDING')   ? 'selected' : ''}>Pending</option>
+                        <span class="field-label">Status</span>
+                        <select class="status-select ${getStatusClass(order.status)}" onchange="updateStatus(${order.id_order}, this)">
+                            <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>Pending</option>
                             <option value="CONFIRMED" ${order.status === 'CONFIRMED' ? 'selected' : ''}>Confirmed</option>
                             <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>Cancelled</option>
                         </select>
                     </div>
                 </div>`;
             }).join('');
-
         } catch (err) {
-            document.getElementById('ordersList').innerHTML =
-                `<div class="empty-state" style="color:#e74c3c;">Gagal memuat pesanan.</div>`;
+            document.getElementById('ordersList').innerHTML = `<div class="empty-state" style="color:#e74c3c;">Gagal memuat pesanan.</div>`;
         }
     }
 
     async function updateStatus(orderId, selectEl) {
-        const newStatus = selectEl.value;
-        selectEl.className = `status-select ${getStatusClass(newStatus)}`;
-
-        const endpointMap = {
-            'CONFIRMED': `/api/orders/${orderId}/confirm`,
-            'CANCELLED': `/api/orders/${orderId}/cancel`,
-            'PENDING':   `/api/orders/${orderId}/pending`
-        };
-
+        const endpointMap = { 'CONFIRMED': `/api/orders/${orderId}/confirm`, 'CANCELLED': `/api/orders/${orderId}/cancel`, 'PENDING': `/api/orders/${orderId}/pending` };
         try {
-            const res = await fetch(endpointMap[newStatus], { method: 'PUT', headers: authHeaders() });
-            if (res.ok) {
-                showToast(`✅ Status ${formatOrderId(orderId)} diubah ke ${newStatus}`);
-            } else {
-                showToast('❌ Gagal mengubah status.');
-            }
-        } catch (err) {
-            showToast('❌ Koneksi gagal.');
-        }
+            const res = await fetch(endpointMap[selectEl.value], { method: 'PUT', headers: authHeaders() });
+            if (res.ok) { showToast(`✅ Status ${formatOrderId(orderId)} diubah.`); loadOrders(); }
+            else showToast('❌ Gagal mengubah status.');
+        } catch { showToast('❌ Koneksi gagal.'); }
     }
 
     loadOrders();

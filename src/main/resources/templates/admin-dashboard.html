@@ -557,7 +557,7 @@
             }
         } catch(e) {}
     }
-    loadAdminData(); // Call it immediately
+    loadAdminData(); 
 
     // ── Auth guard ──
     if (!token || role !== 'Admin') {
@@ -599,18 +599,24 @@
                 return;
             }
 
-            list.innerHTML = allItems.map(item => `
-                <div class="item-row" id="item-row-${item.id_item}">
-                    <div class="item-thumb">
+            // ADDED: Sold out logic
+            list.innerHTML = allItems.map(item => {
+                const isSoldOut = item.stok < 1;
+                const rowStyle = isSoldOut ? 'opacity: 0.65; background-color: #fcfcfc;' : '';
+                const badge = isSoldOut ? `<span style="background: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 8px; vertical-align: middle;">SOLD OUT</span>` : '';
+
+                return `
+                <div class="item-row" id="item-row-${item.id_item}" style="${rowStyle}">
+                    <div class="item-thumb" style="${isSoldOut ? 'filter: grayscale(100%);' : ''}">
                         ${item.gambar_item
                             ? `<img src="${item.gambar_item}" alt="${item.nama_item}"
-                                    onerror="this.parentElement.innerHTML='<div class=\'thumb-placeholder\'>📦</div>'">`
+                                    onerror="this.parentElement.innerHTML='<div class=\\'thumb-placeholder\\'>📦</div>'">`
                             : `<div class="thumb-placeholder">📦</div>`
                         }
                     </div>
 
                     <div class="item-info">
-                        <div class="item-info-name">${item.nama_item}</div>
+                        <div class="item-info-name">${item.nama_item} ${badge}</div>
                         <div class="item-info-meta">by ${item.adminUsername || 'Admin'}</div>
                         <div class="item-info-desc">${item.deskripsi || '-'}</div>
                     </div>
@@ -623,7 +629,8 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
 
         } catch (err) {
             document.getElementById('itemsList').innerHTML =
@@ -671,25 +678,23 @@
 
         const nama = document.getElementById('field-nama').value.trim();
         const harga = document.getElementById('field-harga').value.trim();
-        const stok = document.getElementById('field-stok').value.trim(); // <-- ADDED THIS
+        const stok = document.getElementById('field-stok').value.trim(); 
         const deskripsi = document.getElementById('field-deskripsi').value.trim();
         const fileInput = document.getElementById('itemImageFile');
         const errorEl = document.getElementById('modalError');
 
-        if (!nama || !harga || !stok) { // <-- ADDED STOK CHECK
+        if (!nama || !harga || !stok) { 
             errorEl.textContent = 'Nama, harga, dan stok wajib diisi!';
             return;
         }
 
-        // Use FormData instead of JSON
         const formData = new FormData();
         formData.append('nama_item', nama);
         formData.append('harga', harga);
-        formData.append('stok', stok); // <-- ADDED THIS TO THE PAYLOAD
+        formData.append('stok', stok); 
         formData.append('deskripsi', deskripsi);
         formData.append('adminUsername', currentAdminUsername);
         
-        // Append file if selected
         if (fileInput.files.length > 0) {
             formData.append('file', fileInput.files[0]);
         }
@@ -697,14 +702,12 @@
         try {
             let res;
             if (editingItemId) {
-                // PUT - update
                 res = await fetch(`/api/items/${editingItemId}`, {
                     method: 'PUT',
                     headers: { 'Authorization': 'Bearer ' + currentToken }, 
                     body: formData
                 });
             } else {
-                // POST - create
                 res = await fetch('/api/items', {
                     method: 'POST',
                     headers: { 'Authorization': 'Bearer ' + currentToken }, 
@@ -760,7 +763,6 @@
         }
     }
 
-    // Close modals when clicking overlay
     document.getElementById('itemModal').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
