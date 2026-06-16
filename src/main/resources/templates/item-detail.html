@@ -450,7 +450,7 @@
     // ── Load other items (random, max 4, exclude current) ──
     async function loadOtherItems(currentId) {
         const grid = document.getElementById('otherGrid');
-        try {
+        try {   
             const res = await fetch('/api/items', {
                 headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
             });

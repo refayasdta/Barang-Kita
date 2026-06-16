@@ -470,10 +470,8 @@
     </div>
 </nav>
 
-<!-- ══ CONTENT ══ -->
 <div class="content">
 
-    <!-- Header Card -->
     <div class="header-card">
         <div class="header-card-left">
             <h2>Inventaris Produk</h2>
@@ -484,7 +482,6 @@
         </button>
     </div>
 
-    <!-- Items List -->
     <div class="items-list" id="itemsList">
         <div class="empty-state">
             <div class="spinner"></div>
@@ -494,7 +491,6 @@
 
 </div>
 
-<!-- ══ ADD/EDIT MODAL ══ -->
 <div class="modal-overlay" id="itemModal">
     <div class="modal">
         <h3 id="modalTitle">Tambah Produk Baru</h3>
@@ -530,7 +526,6 @@
     </div>
 </div>
 
-<!-- ══ DELETE CONFIRM MODAL ══ -->
 <div class="modal-overlay" id="deleteModal">
     <div class="confirm-modal">
         <div class="icon">🗑️</div>
@@ -541,7 +536,6 @@
     </div>
 </div>
 
-<!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -592,7 +586,7 @@
     // ── Load Items ──
     async function loadItems() {
         try {
-            const res = await fetch('/api/items', { headers: authHeaders() }); // <-- Token Added
+            const res = await fetch('/api/items', { headers: authHeaders() });
             allItems = await res.json();
 
             const countEl = document.getElementById('itemCount');
@@ -607,7 +601,6 @@
 
             list.innerHTML = allItems.map(item => `
                 <div class="item-row" id="item-row-${item.id_item}">
-                    <!-- Thumbnail -->
                     <div class="item-thumb">
                         ${item.gambar_item
                             ? `<img src="${item.gambar_item}" alt="${item.nama_item}"
@@ -616,14 +609,12 @@
                         }
                     </div>
 
-                    <!-- Info -->
                     <div class="item-info">
                         <div class="item-info-name">${item.nama_item}</div>
                         <div class="item-info-meta">by ${item.adminUsername || 'Admin'}</div>
                         <div class="item-info-desc">${item.deskripsi || '-'}</div>
                     </div>
 
-                    <!-- Price + Actions -->
                     <div class="item-right">
                         <div class="item-price">${formatRupiah(item.harga)}</div>
                         <div class="item-actions">
@@ -646,6 +637,7 @@
         document.getElementById('modalTitle').textContent = 'Tambah Produk Baru';
         document.getElementById('field-nama').value = '';
         document.getElementById('field-harga').value = '';
+        document.getElementById('field-stok').value = '1';
         document.getElementById('field-deskripsi').value = '';
         document.getElementById('itemImageFile').value = '';
         document.getElementById('modalError').textContent = '';
@@ -661,6 +653,7 @@
         document.getElementById('modalTitle').textContent = 'Edit Produk';
         document.getElementById('field-nama').value = item.nama_item || '';
         document.getElementById('field-harga').value = item.harga || '';
+        document.getElementById('field-stok').value = item.stok || '1';
         document.getElementById('field-deskripsi').value = item.deskripsi || '';
         document.getElementById('itemImageFile').value = '';
         document.getElementById('modalError').textContent = '';
@@ -672,19 +665,19 @@
         editingItemId = null;
     }
 
-    // ══ SAVE (Add or Edit) ══
     // ══ SAVE (Add or Edit with File Upload) ══
     async function saveItem() {
         const currentToken = localStorage.getItem('token');
 
         const nama = document.getElementById('field-nama').value.trim();
         const harga = document.getElementById('field-harga').value.trim();
+        const stok = document.getElementById('field-stok').value.trim();
         const deskripsi = document.getElementById('field-deskripsi').value.trim();
         const fileInput = document.getElementById('itemImageFile');
         const errorEl = document.getElementById('modalError');
 
-        if (!nama || !harga) {
-            errorEl.textContent = 'Nama dan harga wajib diisi!';
+        if (!nama || !harga || !stok) {
+            errorEl.textContent = 'Nama, harga, dan stok wajib diisi!';
             return;
         }
 
@@ -692,6 +685,7 @@
         const formData = new FormData();
         formData.append('nama_item', nama);
         formData.append('harga', harga);
+        formData.append('stok', stok);
         formData.append('deskripsi', deskripsi);
         formData.append('adminUsername', currentAdminUsername);
         
@@ -703,7 +697,7 @@
         try {
             let res;
             if (editingItemId) {
-                // PUT - update (Make sure your backend PUT accepts FormData/MultipartFile too!)
+                // PUT - update
                 res = await fetch(`/api/items/${editingItemId}`, {
                     method: 'PUT',
                     headers: { 'Authorization': 'Bearer ' + currentToken }, // NO Content-Type
