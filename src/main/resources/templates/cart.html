@@ -461,9 +461,10 @@
         setTimeout(() => t.classList.remove('show'), duration);
     }
 
-    function getUserIdFromToken(tok) {
+    function getUserIdFromToken(token) {
         try {
-            return JSON.parse(atob(tok.split('.')[1])).id_akun || null;
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.id_akun || payload.id || payload.sub || null;
         } catch { return null; }
     }
 
@@ -487,7 +488,7 @@
             await Promise.all(cartItems.map(async (c) => {
                 if (!itemDetails[c.id_item]) {
                     const r = await fetch(`/api/items/${c.id_item}`, {
-                        headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
+                        headers: { 'Authorization': 'Bearer ' + token } // <-- Token Added
                     });
                     if (r.ok) itemDetails[c.id_item] = await r.json();
                 }

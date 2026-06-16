@@ -173,12 +173,11 @@
         } catch(e) { showToast('❌ Gagal memuat data cart'); return; }
 
         // Load item details
-        // Load item details
         await Promise.all(checkoutCartItems.map(async (c) => {
             if (!itemDetailsMap[c.id_item]) {
                 try {
                     const r = await fetch(`/api/items/${c.id_item}`, {
-                        headers: { 'Authorization': 'Bearer ' + token } // <-- ADDED TOKEN
+                        headers: { 'Authorization': 'Bearer ' + token } // <-- Token Added
                     });
                     if (r.ok) itemDetailsMap[c.id_item] = await r.json();
                 } catch(e) {}
