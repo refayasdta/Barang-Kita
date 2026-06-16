@@ -30,8 +30,9 @@ public class SecurityConfig {
                 // 1. PUBLIC ASSETS (JS, Images, etc. so the browser doesn't get 403s)
                 .requestMatchers("/js/**", "/images/**", "/assets/**", "/favicon.ico").permitAll()
                 
-                // 2. AUTHENTICATION ENDPOINTS
+                // 2. AUTHENTICATION ENDPOINTS & SPRING BOOT ERRORS
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/error").permitAll() // <-- ADDED: Fixes the Ghost 401 bug
                 
                 // 3. PUBLIC PAGES
                 .requestMatchers("/login", "/register", "/home", "/item-detail", "/cart", "/checkout", 
