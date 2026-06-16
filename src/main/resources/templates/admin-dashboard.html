@@ -671,12 +671,12 @@
 
         const nama = document.getElementById('field-nama').value.trim();
         const harga = document.getElementById('field-harga').value.trim();
-        const stok = document.getElementById('field-stok').value.trim();
+        const stok = document.getElementById('field-stok').value.trim(); // <-- ADDED THIS
         const deskripsi = document.getElementById('field-deskripsi').value.trim();
         const fileInput = document.getElementById('itemImageFile');
         const errorEl = document.getElementById('modalError');
 
-        if (!nama || !harga || !stok) {
+        if (!nama || !harga || !stok) { // <-- ADDED STOK CHECK
             errorEl.textContent = 'Nama, harga, dan stok wajib diisi!';
             return;
         }
@@ -685,7 +685,7 @@
         const formData = new FormData();
         formData.append('nama_item', nama);
         formData.append('harga', harga);
-        formData.append('stok', stok);
+        formData.append('stok', stok); // <-- ADDED THIS TO THE PAYLOAD
         formData.append('deskripsi', deskripsi);
         formData.append('adminUsername', currentAdminUsername);
         
@@ -700,14 +700,14 @@
                 // PUT - update
                 res = await fetch(`/api/items/${editingItemId}`, {
                     method: 'PUT',
-                    headers: { 'Authorization': 'Bearer ' + currentToken }, // NO Content-Type
+                    headers: { 'Authorization': 'Bearer ' + currentToken }, 
                     body: formData
                 });
             } else {
                 // POST - create
                 res = await fetch('/api/items', {
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + currentToken }, // NO Content-Type
+                    headers: { 'Authorization': 'Bearer ' + currentToken }, 
                     body: formData
                 });
             }
