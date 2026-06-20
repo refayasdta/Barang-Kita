@@ -185,7 +185,7 @@
     let ordersData = [];
     let userProfile = {};
 
-    // Decode JWT to get id_akun (added in Phase 5)
+    // Decode JWT to get id_akun
     function parseJwt(token) {
         try {
             const base64Url = token.split('.')[1];
@@ -237,18 +237,22 @@
     }
 
     function getOngkosKirim() {
-        return 25000; // Mocked flat shipping fee based on UI screenshot
+        return 25000; // Mocked flat shipping fee
     }
 
     // --- 3. View Management ---
     function goBack() {
         const detailView = document.getElementById('detailView');
+        const navTitle = document.getElementById('navTitle');
+        const btnBack = document.getElementById('btnBack');
+
         if (detailView.style.display === 'block') {
             // We are in detail view, go back to list
             detailView.style.display = 'none';
             document.getElementById('listView').style.display = 'block';
-            document.getElementById('navTitle').textContent = 'Riwayat Pesanan';
-            document.getElementById('btnBack').onclick = () => window.location.href = '/profile';
+            
+            if (navTitle) navTitle.textContent = 'Riwayat Pesanan';
+            if (btnBack) btnBack.onclick = () => window.location.href = '/profile';
         } else {
             // We are in list view, go back to profile
             window.location.href = '/profile';
@@ -257,8 +261,9 @@
 
     // --- 4. Fetch & Render Logic ---
     async function initPage() {
-        // Overwrite default back button to return to profile
-        document.getElementById('btnBack').onclick = () => window.location.href = '/profile';
+        // Safely overwrite back button if it exists
+        const btnBack = document.getElementById('btnBack');
+        if (btnBack) btnBack.onclick = () => window.location.href = '/profile';
 
         try {
             // Fetch User Details for Shipping Address
@@ -417,10 +422,12 @@
         // Switch Views
         document.getElementById('listView').style.display = 'none';
         detailContainer.style.display = 'block';
-        document.getElementById('navTitle').textContent = 'Detail Pesanan';
         
-        // Change back button behavior
-        document.getElementById('btnBack').onclick = goBack;
+        // Safely update title and back button if they exist
+        const navTitle = document.getElementById('navTitle');
+        const btnBack = document.getElementById('btnBack');
+        if (navTitle) navTitle.textContent = 'Detail Pesanan';
+        if (btnBack) btnBack.onclick = goBack;
     }
 
     // Boot
